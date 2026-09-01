@@ -5,7 +5,7 @@ from app import db
 
 class Usuario(db.Model):
     # Fields internos
-    id: so.Mapped[int] = so.mapped_column(primary_key=True) #PK interna
+    id: so.Mapped[int] = so.mapped_column(primary_key=True) #PK interna autoincremental para terminos de eficiencia en la identificacion y relaciones de la base de datos 
     tipo: so.Mapped[str] = so.mapped_column(sa.String(10)) #Field interno para implementar el JTI (Joined Table Inheritance), identifica el tipo de usuario
 
     #Fields del diagrama de clases
@@ -24,22 +24,22 @@ class Usuario(db.Model):
 
 class Entrenador(Usuario):
     # Fields internos
-    id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Usuario.id), primary_key=True) # Codigo de identificacion interno para terminos de eficiencia de la base de datos
-    clientes: so.Mapped[List["Cliente"]] = so.relationship(back_populates="entrenador") #Relacion 1-N
+    id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Usuario.id), primary_key=True) 
+    clientes: so.Mapped[List["Cliente"]] = so.relationship(back_populates="entrenador", foreign_keys="[Cliente.entrenador_id]") #Relacion 1-N
 
     #Fields del diagrama de clases
     codigo_entrenador: so.Mapped[str] = so.mapped_column(sa.String(12), unique=True, index=True) # Codigo que introducira el cliente al registrarse para vincularse al entrenador
 
     # Configuracion de Herencia JTI (Joined Table Inheritance)
     __mapper_args__ = {
-        "polymorphic_identity":"entrenador", # valor exacto que identifica a esa subclase en particular
+        "polymorphic_identity":"entrenador", # Valor exacto que identifica a esa subclase en particular
     }
 
 class Cliente(Usuario): 
     # Fields internos
     id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Usuario.id), primary_key=True)
     entrenador_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Entrenador.id, name='fk_cliente_entrenador'), index=True)
-    entrenador: so.Mapped["Entrenador"] = so.relationship(back_populates="clientes") # Relacion 1-1
+    entrenador: so.Mapped["Entrenador"] = so.relationship(back_populates="clientes", foreign_keys="[Cliente.entrenador_id]") # Relacion 1-1
 
     #Fields del diagrama de clases
     peso: so.Mapped[float] = so.mapped_column(sa.Float)
