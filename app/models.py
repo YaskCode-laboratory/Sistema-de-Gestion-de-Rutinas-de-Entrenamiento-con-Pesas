@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app import db
@@ -24,10 +24,11 @@ class Usuario(db.Model):
 
 class Entrenador(Usuario):
     # Fields internos
-    id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("usuario.id"), primary_key=True)
+    id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Usuario.id), primary_key=True) # Codigo de identificacion interno para terminos de eficiencia de la base de datos
+    clientes: so.Mapped[List["Cliente"]] = so.relationship(back_populates="entrenador") #Relacion 1-N
 
     #Fields del diagrama de clases
-    codigo_entrenador: so.Mapped[str] = so.mapped_column(sa.String(12))
+    codigo_entrenador: so.Mapped[str] = so.mapped_column(sa.String(12), unique=True, index=True) # Codigo que introducira el cliente al registrarse para vincularse al entrenador
 
     # Configuracion de Herencia JTI (Joined Table Inheritance)
     __mapper_args__ = {
@@ -36,7 +37,9 @@ class Entrenador(Usuario):
 
 class Cliente(Usuario): 
     # Fields internos
-    id: so.Mapped[int] = so.mapped_column(sa.ForeignKey("usuario.id"), primary_key=True)
+    id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Usuario.id), primary_key=True)
+    entrenador_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Entrenador.id, name='fk_cliente_entrenador'), index=True)
+    entrenador: so.Mapped["Entrenador"] = so.relationship(back_populates="clientes") # Relacion 1-1
 
     #Fields del diagrama de clases
     peso: so.Mapped[float] = so.mapped_column(sa.Float)
