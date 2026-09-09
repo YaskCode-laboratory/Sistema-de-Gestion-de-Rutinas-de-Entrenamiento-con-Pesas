@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}TrainerApp - Perfil de Cliente{% endblock %}
+{% block content %}
+      <div class="container mt-4">
+          <h2>Panel de Cliente</h2>
+          <p class="text-muted">
+              Entrenador asignado: <strong>{{ current_user.entrenador.nombre_usuario }}</strong>
+          </p>
+          <ul class="list-group">
+              <li class="list-group-item"><strong>Peso:</strong> {{ current_user.peso }} kg</li>
+              <li class="list-group-item"><strong>Meta:</strong> {{ current_user.meta }}</li>
+              <li class="list-group-item"><strong>Nivel:</strong> {{ current_user.nivel_experiencia }}</li>
+          </ul>
+      </div>
+{% endblock %}

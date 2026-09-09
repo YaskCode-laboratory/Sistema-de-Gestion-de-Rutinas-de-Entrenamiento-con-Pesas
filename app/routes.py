@@ -14,9 +14,21 @@ from urllib.parse import urlsplit
 @app.route('/')
 def home():
     if current_user.is_authenticated:
-        return render_template('base.html')
+        if current_user.tipo == 'entrenador':
+            return redirect(url_for('clientes'))
+        elif current_user.tipo == 'cliente':
+            return redirect(url_for('perfil'))
     else:
         return redirect(url_for('login'))
+
+@app.route('/clientes')
+def clientes():
+    return render_template('trainer/clientes.html')
+
+
+@app.route('/perfil')
+def perfil():
+    return render_template('cliente/profile.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

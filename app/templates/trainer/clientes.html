@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}TrainerApp - Mis Clientes{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Mis Clientes</h2>
+            <span class="badge bg-primary fs-6">
+                Código: {{ current_user.codigo_entrenador }}
+            </span>
+        </div>
+
+        {% if current_user.clientes %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Peso (kg)</th>
+                            <th>Objetivo</th>
+                            <th>Nivel de Experiencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in current_user.clientes %}
+                            <tr>
+                                <td class="fw-bold">{{ cliente.nombre_usuario }}</td>
+                                <td>{{ cliente.peso }}</td>
+                                <td>{{ cliente.meta }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ cliente.nivel_experiencia }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                Aún no tienes clientes vinculados. Comparte tu código de entrenador 
+                <strong>{{ current_user.codigo_entrenador }}</strong> para que tus clientes se registren.
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
