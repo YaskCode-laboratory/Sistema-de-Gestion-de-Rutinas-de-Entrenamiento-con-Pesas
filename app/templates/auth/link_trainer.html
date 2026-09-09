@@ -1,0 +1,12 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Vincular Entrenador{% endblock %}
+{% block heading %}Código de Entrenador{% endblock %}
+{% block subtitle %}<p class="text-muted small">Introduce el código alfanumérico que te dio tu coach.</p>{% endblock %}
+
+{% block content %}
+    <div class="form-floating mb-2">
+        {{ form.codigo_entrenador(class="form-control text-uppercase" + (" is-invalid" if form.codigo_entrenador.errors else ""), id="floatingCode", placeholder="ENT-XXXXXX") }}
+        {{ form.codigo_entrenador.label(for="floatingCode") }}
+        {% for error in form.codigo_entrenador.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+{% endblock %}

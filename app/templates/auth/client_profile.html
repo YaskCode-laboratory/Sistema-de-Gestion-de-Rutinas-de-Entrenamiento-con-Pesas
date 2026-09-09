@@ -1,0 +1,24 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Perfil de Entrenamiento{% endblock %}
+{% block heading %}Tus Métricas Iniciales{% endblock %}
+{% block subtitle %}<p class="text-muted small">Paso final para personalizar tu plan.</p>{% endblock %}
+
+{% block content %}
+    <div class="form-floating mb-2">
+        {{ form.peso(class="form-control" + (" is-invalid" if form.peso.errors else ""), id="floatingPeso", placeholder="75.5") }}
+        {{ form.peso.label(for="floatingPeso") }}
+        {% for error in form.peso.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-floating mb-2">
+        {{ form.objetivo(class="form-select" + (" is-invalid" if form.meta.errors else ""), id="floatingMeta") }}
+        {{ form.objetivo.label(for="floatingMeta") }}
+        {% for error in form.objetivo.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-floating mb-2">
+        {{ form.nivel_experiencia(class="form-select" + (" is-invalid" if form.nivel_experiencia.errors else ""), id="floatingNivel") }}
+        {{ form.nivel_experiencia.label(for="floatingNivel") }}
+        {% for error in form.nivel_experiencia.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+{% endblock %}

@@ -102,15 +102,7 @@
                 {{ form.hidden_tag() }}
                 <img class="mb-4" src="../static/assets/dumbbell-svgrepo-com.svg" alt="" width="72" height="57">
 
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <h1 class="h3 mb-3">{{ message }}</h1>
-                    {% endfor %}
-                {% endif %}
-                {% endwith %}
-
-                <h1 class="h3 mb-3 fw-normal">Ingresa tus datos</h1>
+                <h3 class="h3 mb-3 fw-normal">Ingresa tus datos</h3>
                 <!-- Username Field -->
                 <div class="form-floating">
                     {% if form.username.errors %}

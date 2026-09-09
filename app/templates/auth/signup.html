@@ -1,0 +1,51 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}TrainerApp - Registrarse{% endblock %}
+{% block heading %}Crea tu Cuenta{% endblock %}
+{% block subtitle %}<p class="text-muted small">Paso 1: Credenciales y Tipo de Perfil</p>{% endblock %}
+
+{% block content %}
+    <!-- Username Field -->
+    <div class="form-floating mb-2">
+        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), id="floatingUser", placeholder="") }}
+        {{ form.username.label(for="floatingUser") }}
+        {% for error in form.username.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Password Field -->
+    <div class="form-floating mb-2">
+        {{ form.password(type="password", class="form-control" + (" is-invalid" if form.password.errors else ""), id="floatingPass", placeholder="") }}
+        {{ form.password.label(for="floatingPass") }}
+        {% for error in form.password.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Confirm Password Field -->
+    <div class="form-floating mb-3">
+        {{ form.confirm_password(type="password", class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), id="floatingConfirmPass", placeholder="") }}
+        {{ form.confirm_password.label(for="floatingConfirmPass") }}
+        {% for error in form.confirm_password.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Role Selection (Radio Buttons) -->
+    <div class="text-start mb-2">
+        <label class="form-label d-block text-muted small fw-semibold">Selecciona tu Rol:</label>
+        {% for subfield in form.role %}
+            <div class="form-check form-check-inline">
+                {{ subfield(class="form-check-input" + (" is-invalid" if form.role.errors else "")) }}
+                {{ subfield.label(class="form-check-label") }}
+            </div>
+        {% endfor %}
+        {% for error in form.role.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <p class="mt-3 text-center">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia Sesión</a></p>
+{% endblock %}
