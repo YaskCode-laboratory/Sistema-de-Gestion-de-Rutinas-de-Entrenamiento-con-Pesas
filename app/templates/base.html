@@ -22,14 +22,17 @@
                         <!-- Role-specific Navigation Items -->
                         {% if current_user.tipo == 'entrenador' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Mis Clientes</a>
+                                <a class="nav-link" href="{{ url_for('clientes') }}">Mis Clientes</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Rutinas</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('ejercicios') }}">Ejercicios</a>
+                            </li>                            
                         {% elif current_user.tipo == 'cliente' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Mi Perfil</a>
+                                <a class="nav-link" href="{{ url_for('perfil') }}">Mi Perfil</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Mi Rutina</a>

@@ -71,7 +71,24 @@ class Cliente(Usuario):
         "polymorphic_identity":"cliente", # valor exacto que identifica a esa subclase en particular
     }
 
+class Ejercicio(db.Model):
+    #Fields internos
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+
+    #Fields del diagrama  de clases
+    nombre: so.Mapped[str] = so.mapped_column(sa.String(100), index=True)
+
+    #Para clientes de Hipertrofia (Ganar Masa Muscular)
+    grupo_muscular: so.Mapped[str] = so.mapped_column(sa.String(50), index=True) # Pecho, Espalda, Piernas, etc.     
+
+    # Para clientes de Powerlifting (Ganar Fuerza) NECESITO AGREGARLO AL DIAGRAMA DE CLASES
+    patron_movimiento: so.Mapped[Optional[str]] = so.mapped_column(sa.String(50), index=True, nullable=True)
+
+    # Si entrenador_id es NULL -> Es ejercicio global (por defecto, para todos)                                                                                                                                         
+    # Si entrenador_id tiene un ID -> Es un ejercicio propio de ese entrenador                                                                                                                                          
+    entrenador_id: so.Mapped[Optional[int]] = so.mapped_column(sa.ForeignKey(Entrenador.id), index=True, nullable=True)     
+
+
 @login.user_loader
 def cargar_usuario(id):
     return db.session.get(Usuario, int(id))
-

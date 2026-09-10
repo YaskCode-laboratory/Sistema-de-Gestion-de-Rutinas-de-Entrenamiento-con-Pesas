@@ -4,10 +4,12 @@ from app.forms import LoginForm
 from app.forms import SignupForm
 from app.forms import TrainerCodeForm
 from app.forms import ClientProfileForm
+from app.forms import ExerciseForm   
 from flask_login import current_user, login_user, logout_user, login_required
+from app.utils import role_required
 import sqlalchemy as sa
 from app import db
-from app.models import Usuario, Entrenador, Cliente
+from app.models import Usuario, Entrenador, Cliente, Ejercicio
 from flask import request
 from urllib.parse import urlsplit
 
@@ -22,11 +24,54 @@ def home():
         return redirect(url_for('login'))
 
 @app.route('/clientes')
+@role_required('entrenador')
 def clientes():
     return render_template('trainer/clientes.html')
 
+@app.route('/trainer/ejercicios', methods=['GET', 'POST'])
+@role_required('entrenador')
+def ejercicios():
+    form = ExerciseForm()                                                                                                                                                                                    
+                                                                                                                                                                                                                
+    if request.method == 'POST':                                                                                                                                                                             
+        # 1. Caso: ¿Se presionó el botón de Eliminar?                                                                                                                                                        
+        delete_id = request.form.get('delete_id')                                                                                                                                                            
+        if delete_id:                                                                                                                                                                                        
+            ejercicio = db.session.get(Ejercicio, int(delete_id))                                                                                                                                            
+            if ejercicio and ejercicio.entrenador_id == current_user.id:                                                                                                                                     
+                db.session.delete(ejercicio)                                                                                                                                                                 
+                db.session.commit()                                                                                                                                                                          
+                flash(f'Ejercicio "{ejercicio.nombre}" eliminado.', 'success')                                                                                                                               
+            else:                                                                                                                                                                                            
+                flash("No puedes eliminar un ejercicio base del sistema.", "danger")                                                                                                                         
+            return redirect(url_for('ejercicios'))                                                                                                                                                           
+                                                                                                                                                                                                                
+        # 2. Caso: ¿Se envió el formulario de Crear nuevo ejercicio?                                                                                                                                         
+        if form.validate_on_submit():                                                                                                                                                                        
+            nuevo = Ejercicio(                                                                                                                                                                               
+                nombre=form.nombre.data.strip(),                                                                                                                                                             
+                grupo_muscular=form.grupo_muscular.data,
+                patron_movimiento=form.patron_movimiento.data,                                                                                                                                                     
+                entrenador_id=current_user.id                                                                                                                                                                
+            )                                                                                                                                                                                                
+            db.session.add(nuevo)                                                                                                                                                                            
+            db.session.commit()                                                                                                                                                                              
+            flash(f'Ejercicio "{nuevo.nombre}" agregado.', 'success')                                                                                                                                        
+            return redirect(url_for('ejercicios'))                                                                                                                                                           
+                                                                                                                                                                                                                
+    # 3. Caso GET: Consultar y listar                                                                                                                                                                        
+    query = sa.select(Ejercicio).where(                                                                                                                                                                      
+        sa.or_(                                                                                                                                                                                              
+            Ejercicio.entrenador_id.is_(None),                                                                                                                                                               
+            Ejercicio.entrenador_id == current_user.id                                                                                                                                                       
+        )                                                                                                                                                                                                    
+    ).order_by(Ejercicio.grupo_muscular, Ejercicio.nombre)                                                                                                                                                   
+                                                                                                                                                                                                                
+    lista = db.session.scalars(query).all()                                                                                                                                                                  
+    return render_template('trainer/ejercicios.html', form=form, ejercicios=lista)      
 
 @app.route('/perfil')
+@role_required('cliente')
 def perfil():
     return render_template('cliente/profile.html')
 
@@ -46,13 +91,6 @@ def login():
             form.password.errors.append("La contraseña es invalida")
             return render_template('auth/login.html', form=form), 400
         login_user(usuario, remember=form.remember_me.data)
-        
-        flash('Usuario: {}'.format(usuario.nombre_usuario))
-        flash('Rol: {}'.format(usuario.tipo))
-        if usuario.tipo == 'entrenador':
-            flash('Codigo de Entrenador: {}'.format(usuario.codigo_entrenador))
-        elif usuario.tipo == 'cliente':
-            flash('Entrenador: {}'.format(usuario.entrenador.nombre_usuario))
 
         next_page = request.args.get('next')
         if not next_page or urlsplit(next_page).netloc != '':
