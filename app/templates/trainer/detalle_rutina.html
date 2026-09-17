@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block title %}TrainerApp - {{ rutina.nombre }}{% endblock %}
+
+{% block content %}
+{% set dias_nombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo'} %}
+
+<div class="container mt-4">
+    <!-- Navegación y Botón Volver -->
+    <div class="mb-3">
+        <a href="{{ url_for('rutinas') }}" class="btn btn-outline-secondary btn-sm">
+            &larr; Volver a Mis Rutinas
+        </a>
+    </div>
+
+    <!-- Encabezado de la Rutina -->
+    <div class="card shadow-sm mb-4 border-0 bg-white">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h2 class="mb-1 fw-bold text-dark">{{ rutina.nombre }}</h2>
+                    <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+                        <span class="badge {% if rutina.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} fs-6">
+                            {{ rutina.meta }}
+                        </span>
+                        <span class="badge bg-secondary fs-6">
+                            {{ rutina.nivel }}
+                        </span>
+                        <span class="badge bg-light text-dark border fs-6">
+                            {{ rutina.sesiones|length }} {% if rutina.sesiones|length == 1 %}sesión configurada{% else %}sesiones configuradas{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <!-- Botón para abrir modal de nueva sesión -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaSesion">
+                        + Añadir Día / Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de Sesiones de la Rutina -->
+    {% if rutina.sesiones %}
+        <div class="row g-4">
+            {% for s in rutina.sesiones|sort(attribute='dia') %}
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <!-- Cabecera de la Sesión -->
+                        <div class="card-header bg-dark text-white d-flex flex-wrap justify-content-between align-items-center py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary fs-6">
+                                    {{ dias_nombres.get(s.dia, 'Día ' ~ s.dia) }}
+                                </span>
+                                <h5 class="mb-0 fw-semibold">{{ s.nombre }}</h5>
+                                <span class="badge bg-secondary">
+                                    {{ s.prescripciones|length }} {% if s.prescripciones|length == 1 %}ejercicio{% else %}ejercicios{% endif %}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2 align-items-center mt-2 mt-md-0">
+                                <!-- Botón para agregar ejercicio a esta sesión -->
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEjercicio{{ s.id }}">
+                                    + Agregar Ejercicio
+                                </button>
+
+                                <!-- Botón para eliminar sesión -->
+                                <form action="{{ url_for('eliminar_sesion', rutina_id=rutina.id, sesion_id=s.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar la sesión \'{{ s.nombre }}\'? Se borrarán todos sus ejercicios prescritos.');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        Eliminar Sesión
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Cuerpo de la Sesión: Tabla de Ejercicios -->
+                        <div class="card-body p-0">
+                            {% if s.prescripciones %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 30%;">Ejercicio</th>
+                                                <th style="width: 15%;">Series</th>
+                                                <th style="width: 15%;">Repeticiones</th>
+                                                <th style="width: 15%;">Descanso</th>
+                                                <th style="width: 20%;">Intensidad / Notas</th>
+                                                <th style="width: 5%;" class="text-end">Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for p in s.prescripciones %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="fw-semibold">{{ p.ejercicio.nombre }}</div>
+                                                        <span class="badge bg-light text-dark border small">
+                                                            {{ p.ejercicio.grupo_muscular }}
+                                                        </span>
+                                                        {% if p.ejercicio.patron_movimiento %}
+                                                            <span class="badge bg-light text-muted border small">
+                                                                {{ p.ejercicio.patron_movimiento }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        <span class="fw-bold fs-6">{{ p.series }}</span> series
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info text-dark fs-6">{{ p.repeticiones }}</span> reps
+                                                    </td>
+                                                    <td>
+                                                        {% if p.descanso_segundos %}
+                                                            <span>{{ p.descanso_segundos }}s</span>
+                                                        {% else %}
+                                                            <span class="text-muted small">N/A</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if p.intensidad %}
+                                                            <div><span class="badge bg-warning text-dark">{{ p.intensidad }}</span></div>
+                                                        {% endif %}
+                                                        {% if p.notas %}
+                                                            <small class="text-muted d-block fst-italic mt-1">{{ p.notas }}</small>
+                                                        {% endif %}
+                                                        {% if not p.intensidad and not p.notas %}
+                                                            <span class="text-muted small">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <!-- Formulario para eliminar prescripción -->
+                                                        <form action="{{ url_for('eliminar_prescripcion', prescripcion_id=p.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Quitar \'{{ p.ejercicio.nombre }}\' de esta sesión?');">
+                                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar ejercicio">
+                                                                &times;
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="p-4 text-center text-muted">
+                                    <p class="mb-2">Esta sesión aún no tiene ejercicios prescritos.</p>
+                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEjercicio{{ s.id }}">
+                                        + Agregar el primer ejercicio
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para Agregar Ejercicio a esta Sesión específica -->
+                <div class="modal fade" id="modalEjercicio{{ s.id }}" tabindex="-1" aria-labelledby="modalLabel{{ s.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ url_for('agregar_prescripcion_ejercicio', rutina_id=rutina.id, sesion_id=s.id) }}">
+                                {{ prescription_form.hidden_tag() }}
+                                <div class="modal-header bg-dark text-white">
+                                    <h5 class="modal-title" id="modalLabel{{ s.id }}">
+                                        Agregar Ejercicio a: {{ s.nombre }}
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        {{ prescription_form.ejercicio_id.label(class="form-label fw-semibold") }}
+                                        {{ prescription_form.ejercicio_id(class="form-select") }}
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            {{ prescription_form.series.label(class="form-label fw-semibold") }}
+                                            {{ prescription_form.series(class="form-control", placeholder="Ej: 4") }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            {{ prescription_form.repeticiones.label(class="form-label fw-semibold") }}
+                                            {{ prescription_form.repeticiones(class="form-control", placeholder="Ej: 8-10 o 5") }}
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            {{ prescription_form.descanso_segundos.label(class="form-label") }}
+                                            {{ prescription_form.descanso_segundos(class="form-control", placeholder="Ej: 90") }}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            {{ prescription_form.intensidad.label(class="form-label") }}
+                                            {{ prescription_form.intensidad(class="form-control", placeholder="Ej: @ RPE 8") }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        {{ prescription_form.notas.label(class="form-label") }}
+                                        {{ prescription_form.notas(class="form-control", placeholder="Ej: Controlar la fase excéntrica") }}
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    {{ prescription_form.submit(class="btn btn-success") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Estado Vacío: Sin Sesiones -->
+        <div class="alert alert-info shadow-sm py-4 text-center" role="alert">
+            <h4 class="alert-heading">Esta rutina aún no tiene sesiones de entrenamiento</h4>
+            <p class="text-muted mb-3">
+                Comienza agregando los días de la semana en los que tu cliente debe entrenar (por ejemplo: Lunes, Miércoles, Viernes).
+            </p>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaSesion">
+                + Añadir la primera sesión
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modal para Crear Nueva Sesión / Día -->
+<div class="modal fade" id="modalNuevaSesion" tabindex="-1" aria-labelledby="modalNuevaSesionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('agregar_sesion', rutina_id=rutina.id) }}">
+                {{ session_form.hidden_tag() }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalNuevaSesionLabel">Añadir Sesión / Día de Entrenamiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        {{ session_form.dia.label(class="form-label fw-semibold") }}
+                        {{ session_form.dia(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ session_form.nombre.label(class="form-label fw-semibold") }}
+                        {{ session_form.nombre(class="form-control", placeholder="Ej: Día 1 - Torso o Empuje") }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ session_form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

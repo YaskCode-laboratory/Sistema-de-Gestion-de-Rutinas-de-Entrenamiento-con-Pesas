@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField, FloatField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField, FloatField, SelectField, IntegerField
 from wtforms.validators import ValidationError, DataRequired, EqualTo, NumberRange
 import sqlalchemy as sa
 from app import db
-from app.models import Usuario, Entrenador, Ejercicio
+from app.models import Usuario, Entrenador, Ejercicio, Rutina
 from flask_login import current_user
 
 class LoginForm(FlaskForm):
@@ -59,3 +59,29 @@ class ExerciseForm(FlaskForm):
         )
         if ejercicio is not None:
             raise ValidationError("Ya existe un ejercicio con este nombre en tu catálogo.")
+
+class RoutineForm(FlaskForm):
+    nombre = StringField('Nombre de la Rutina', validators=[DataRequired(message="Por favor ingrese un nombre")])
+    objetivo = SelectField('Meta Objetivo', choices=[('Hipertrofia', 'Ganar Músculo (Hipertrofia)'), ('Fuerza', 'Ganar Fuerza')], validators=[DataRequired()])
+    nivel = SelectField('Nivel de Experiencia', choices=[('Principiante', 'Principiante'), ('Intermedio', 'Intermedio'), ('Avanzado', 'Avanzado')], validators=[DataRequired()])
+    submit = SubmitField('Guardar Rutina')
+
+    def validate_nombre(self, nombre):
+        nombre_limpio = nombre.data.strip().lower()
+        rutina_existente = db.session.scalar(sa.select(Rutina).where(sa.func.lower(Rutina.nombre) == nombre_limpio, Rutina.entrenador_id == current_user.id))
+        if rutina_existente is not None:
+            raise ValidationError('Ya tienes una rutina registrada con este nombre.')
+
+class SessionForm(FlaskForm):
+    nombre = StringField('Nombre de la Sesion', validators=[DataRequired(message="Por favor ingrese un nombre")])
+    dia = SelectField('Dia de la semana', choices=[('1', 'Lunes'), ('2', 'Martes'), ('3', 'Miércoles'), ('4', 'Jueves'), ('5', 'Viernes'), ('6', 'Sábado'), ('7', 'Domingo')])
+    submit = SubmitField('Añadir Sesion')
+
+class PrescriptionForm(FlaskForm):
+    ejercicio_id = SelectField('Ejercicio', coerce=int, validators=[DataRequired(message='Seleccione un ejercicio')])
+    series = IntegerField('Series', validators=[DataRequired(message='Indique las series'), NumberRange(min=1, max=20)], default=3)
+    repeticiones = StringField('Repeticiones', validators=[DataRequired(message='Indique las repeticiones')])
+    descanso_segundos = IntegerField('Descanso (segundos)', default=90)
+    intensidad = StringField('Intensidad (Opcional)')
+    notas = StringField('Notas o Instrucciones (Opcional)')
+    submit = SubmitField("Añadir Ejercicio")
