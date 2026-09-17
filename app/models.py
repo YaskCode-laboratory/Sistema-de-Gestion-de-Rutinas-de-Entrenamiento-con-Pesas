@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 import secrets # Para generar el codigo del entrenador
 import string # Para los caracteres a utilizar para generar el codigo del entrenador
-import datetime
+from datetime import date, datetime
 
 class Usuario(UserMixin, db.Model):
     # Fields internos
@@ -144,6 +144,33 @@ class PrescripcionEjercicioSesion(db.Model):
     # Relaciones
     sesion: so.Mapped['Sesion'] = so.relationship(back_populates='prescripciones')
     ejercicio: so.Mapped['Ejercicio'] = so.relationship()
+
+class RegistroSesionEntrenamiento(db.Model):
+    #Fields Internos
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    cliente_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Cliente.id), index=True)
+    sesion_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Sesion.id), index=True)
+
+    #Fields del diagrama de clases
+    fecha: so.Mapped[date] = so.mapped_column(sa.Date, default=date.today)
+    duracion_minutos: so.Mapped[int] = so.mapped_column(sa.Integer)
+    estado_animo: so.Mapped[Optional[str]] = so.mapped_column(sa.String(50), nullable=True) 
+
+    # Relaciones
+    cliente: so.mapped['cliente']
+
+class RegistroEjercicioSesion(db.Model):
+    #Fields Internos
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+
+class RegistroSerie(db.Model):
+    #Fields Internos
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+
+class RegistroPesoCorporal(db.Model):
+    #Fields Internos
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+
 
 @login.user_loader
 def cargar_usuario(id):
