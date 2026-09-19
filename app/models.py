@@ -173,6 +173,7 @@ class RegistroEjercicioSesion(db.Model):
 
     #Relaciones
     registro_sesion: so.Mapped['RegistroSesionEntrenamiento'] = so.relationship(back_populates='registros_ejercicios')
+    ejercicio: so.Mapped['Ejercicio'] = so.relationship()
     series: so.Mapped[List['RegistroSerie']] = so.relationship(back_populates='registro_ejercicio', cascade='all, delete-orphan')
 
 class RegistroSerie(db.Model):
@@ -198,7 +199,7 @@ class RegistroPesoCorporal(db.Model):
     peso: so.Mapped[float] = so.mapped_column(sa.Float)
 
     #Relaciones
-    Cliente: so.Mapped['Cliente'] = so.relationship
+    cliente: so.Mapped['Cliente'] = so.relationship()
 
 
 @login.user_loader
