@@ -157,19 +157,48 @@ class RegistroSesionEntrenamiento(db.Model):
     estado_animo: so.Mapped[Optional[str]] = so.mapped_column(sa.String(50), nullable=True) 
 
     # Relaciones
-    cliente: so.mapped['cliente']
+    cliente: so.Mapped['Cliente'] = so.relationship()
+    sesion: so.Mapped['Sesion'] = so.relationship()
+    registros_ejercicios: so.Mapped[List['RegistroEjercicioSesion']] = so.relationship(back_populates='registro_sesion', cascade='all, delete-orphan')
+
 
 class RegistroEjercicioSesion(db.Model):
     #Fields Internos
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    registro_sesion_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(RegistroSesionEntrenamiento.id, ondelete='CASCADE'), index=True)
+    ejercicio_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Ejercicio.id), index=True)
+
+    #Fields diagrama de clases
+    notas_adicionales: so.Mapped[Optional[str]] = so.mapped_column(sa.String(200), nullable=True)
+
+    #Relaciones
+    registro_sesion: so.Mapped['RegistroSesionEntrenamiento'] = so.relationship(back_populates='registros_ejercicios')
+    series: so.Mapped[List['RegistroSerie']] = so.relationship(back_populates='registro_ejercicio', cascade='all, delete-orphan')
 
 class RegistroSerie(db.Model):
     #Fields Internos
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    registro_ejercicio_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(RegistroEjercicioSesion.id, ondelete='CASCADE'), index=True)
+
+    #Fields diagrama de clases
+    numero_serie: so.Mapped[int] = so.mapped_column(sa.Integer)
+    peso_usado: so.Mapped[float] = so.mapped_column(sa.Float)
+    repeticiones_logradas: so.Mapped[int] = so.mapped_column(sa.Integer)
+
+    #Relaciones
+    registro_ejercicio: so.Mapped['RegistroEjercicioSesion'] = so.relationship(back_populates='series')
 
 class RegistroPesoCorporal(db.Model):
     #Fields Internos
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    cliente_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Cliente.id), index=True)
+
+    #Fields del diagrama de clase
+    fecha: so.Mapped[date] = so.mapped_column(sa.Date, default=date.today, index=True)
+    peso: so.Mapped[float] = so.mapped_column(sa.Float)
+
+    #Relaciones
+    Cliente: so.Mapped['Cliente'] = so.relationship
 
 
 @login.user_loader
