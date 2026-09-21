@@ -12,9 +12,10 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app.utils import role_required
 import sqlalchemy as sa
 from app import db
-from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion
+from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento
 from flask import request
 from urllib.parse import urlsplit
+from datetime import date, datetime, timedelta
 
 @app.route('/')
 def home():
@@ -258,8 +259,7 @@ def asignar_rutina(cliente_id):
         cliente=cliente,
         rutinas_compatibles=rutinas_compatibles,
         otras_rutinas=otras_rutinas
-    )
-    
+    )    
 
 @app.route('/perfil')
 @role_required('cliente')
@@ -289,6 +289,61 @@ def login():
         return redirect(next_page)
     
     return render_template('auth/login.html', form=form)
+
+@app.route('/cliente/entrenamiento-hoy')
+@role_required('cliente')
+def entrenamiento_hoy():
+    if not current_user.rutina_asignada:
+        flash('Aún no tienes una rutina de entrenamiento asignada.', 'warning')
+        return redirect(url_for('perfil'))
+
+    dia_hoy = date.today().isoweekday() # 1=Lunes ... 7=Domingo
+    dia_param = request.args.get('dia', type=int)
+
+    # 1. Sesiones de la rutina ordenadas cronológicamente
+    sesiones_ordenadas = sorted(current_user.rutina_asignada.sesiones, key=lambda s: s.dia)
+
+    # 2. Buscar qué sesiones ya completó el alumno esta semana
+    inicio_semana = date.today() - timedelta(days=date.today().weekday())
+    registros_semana = db.session.scalars(
+        sa.select(RegistroSesionEntrenamiento).where(
+            RegistroSesionEntrenamiento.cliente_id == current_user.id,
+            RegistroSesionEntrenamiento.fecha >= inicio_semana
+        )
+    ).all()
+    completadas_ids = {r.sesion_id for r in registros_semana}
+
+    # 3. La siguiente sesión pendiente según la filosofía 3DMJ (retomar donde quedó)
+    proxima_sesion = next((s for s in sesiones_ordenadas if s.id not in completadas_ids), None)
+
+    # 4. ¿Qué sesión mostramos en pantalla?
+    if dia_param:
+        # Si el usuario hizo clic en entrenar la sesión sugerida en día de descanso
+        sesion_a_mostrar = next((s for s in sesiones_ordenadas if s.dia == dia_param), None)
+        es_dia_descanso = False
+    elif proxima_pendiente := proxima_sesion:
+        if proxima_pendiente.dia == dia_hoy:
+            # Hoy coincide exactamente con la sesión que le toca: entra directo
+            sesion_a_mostrar = proxima_pendiente
+            es_dia_descanso = False
+        else:
+            # Hoy no coincide (es día de descanso o día desfasado)
+            sesion_a_mostrar = None
+            es_dia_descanso = True
+    else:
+        # Ya completó todas las sesiones de la semana
+        sesion_a_mostrar = None
+        es_dia_descanso = True
+
+    return render_template(
+        'cliente/entrenamiento_hoy.html',
+        sesion=sesion_a_mostrar,
+        proxima_sesion=proxima_sesion,
+        es_dia_descanso=es_dia_descanso,
+        dia_hoy=dia_hoy,
+        rutina=current_user.rutina_asignada,
+        completadas_ids=completadas_ids
+    )
 
 @app.route('/logout')
 def logout():
