@@ -12,7 +12,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app.utils import role_required
 import sqlalchemy as sa
 from app import db
-from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento
+from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie 
 from flask import request
 from urllib.parse import urlsplit
 from datetime import date, datetime, timedelta
@@ -266,6 +266,11 @@ def asignar_rutina(cliente_id):
 def perfil():
     return render_template('cliente/profile.html')
 
+@app.route('/cliente/mi-rutina')
+@role_required('cliente')
+def mi_rutina():
+    return render_template('cliente/mi_rutina.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -335,6 +340,18 @@ def entrenamiento_hoy():
         sesion_a_mostrar = None
         es_dia_descanso = True
 
+    # Control de tiempo en el servidor (Cero JavaScript)
+    if sesion_a_mostrar:
+        if not session.get('inicio_entrenamiento') or session.get('sesion_activa_id') != sesion_a_mostrar.id:
+            session['inicio_entrenamiento'] = datetime.now().isoformat()
+            session['sesion_activa_id'] = sesion_a_mostrar.id
+        hora_inicio_dt = datetime.fromisoformat(session['inicio_entrenamiento'])
+        hora_inicio_str = hora_inicio_dt.strftime('%I:%M %p')
+    else:
+        session.pop('inicio_entrenamiento', None)
+        session.pop('sesion_activa_id', None)
+        hora_inicio_str = None
+
     return render_template(
         'cliente/entrenamiento_hoy.html',
         sesion=sesion_a_mostrar,
@@ -342,8 +359,69 @@ def entrenamiento_hoy():
         es_dia_descanso=es_dia_descanso,
         dia_hoy=dia_hoy,
         rutina=current_user.rutina_asignada,
-        completadas_ids=completadas_ids
+        completadas_ids=completadas_ids,
+        hora_inicio_str=hora_inicio_str
     )
+
+@app.route('/cliente/sesiones/<int:sesion_id>/guardar-entrenamiento', methods=['POST'])
+@role_required('cliente')
+def guardar_entrenamiento(sesion_id):
+    sesion = db.session.get(Sesion, sesion_id)
+    if not sesion or sesion.rutina_id != current_user.rutina_id:
+        flash('Sesión de entrenamiento no válida.', 'danger')
+        return redirect(url_for('perfil'))
+
+    # 1. Calcular duración en el servidor (Python puro)
+    inicio_iso = session.pop('inicio_entrenamiento', None)
+    session.pop('sesion_activa_id', None)
+    if inicio_iso:
+        hora_inicio = datetime.fromisoformat(inicio_iso)
+        segundos = (datetime.now() - hora_inicio).total_seconds()
+        duracion_minutos = max(1, round(segundos / 60))
+    else:
+        duracion_minutos = request.form.get('duracion_minutos', default=45, type=int)
+
+    estado_animo = request.form.get('estado_animo', 'Normal').strip()
+
+    # 2. Crear cabecera: RegistroSesionEntrenamiento
+    registro_sesion = RegistroSesionEntrenamiento(
+        cliente_id=current_user.id,
+        sesion_id=sesion.id,
+        fecha=date.today(),
+        duracion_minutos=duracion_minutos,
+        estado_animo=estado_animo
+    )
+    db.session.add(registro_sesion)
+
+    # 3. Guardar ejercicios y sus series
+    for p in sesion.prescripciones:
+        notas = request.form.get(f'notas_{p.ejercicio_id}', '').strip()
+        reg_ejercicio = RegistroEjercicioSesion(
+            registro_sesion=registro_sesion,
+            ejercicio_id=p.ejercicio_id,
+            notas_adicionales=notas if notas else None
+        )
+        db.session.add(reg_ejercicio)
+
+        # Guardar cada serie completada
+        for s_idx in range(1, p.series + 1):
+            peso_val = request.form.get(f'peso_{p.ejercicio_id}_{s_idx}', type=float)
+            reps_val = request.form.get(f'reps_{p.ejercicio_id}_{s_idx}', type=int)
+
+            # Si el usuario llenó los datos de la serie, la registramos
+            if peso_val is not None and reps_val is not None:
+                serie = RegistroSerie(
+                    registro_ejercicio=reg_ejercicio,
+                    numero_serie=s_idx,
+                    peso_usado=peso_val,
+                    repeticiones_logradas=reps_val
+                )
+                db.session.add(serie)
+
+    db.session.commit()
+    flash(f'¡Entrenamiento "{sesion.nombre}" guardado con éxito! Duración registrada: {duracion_minutos} min.', 'success')
+    return redirect(url_for('perfil'))
+    
 
 @app.route('/logout')
 def logout():
@@ -411,3 +489,4 @@ def client_profile():
         flash('Registro exitoso!')
         return redirect(url_for('login'))
     return render_template('auth/client_profile.html', form=form)
+

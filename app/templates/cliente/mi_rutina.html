@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}TrainerApp - Mi Rutina{% endblock %}
+
+{% block content %}
+{% set dias_nombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo'} %}
+
+<div class="container mt-4">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1">Mi Plan de Rutina</h2>
+            <p class="text-muted mb-0">
+                Supervisado por: <strong>{{ current_user.entrenador.nombre_usuario }}</strong>
+            </p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {% if current_user.rutina_asignada %}
+                <!-- CASO 1: Rutina Asignada con Éxito -->
+                <div class="card shadow-sm border-success border-2 bg-white">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <span class="badge bg-success-subtle text-success border border-success px-3 py-1 mb-2 fw-semibold">
+                                    ✓ Rutina Asignada
+                                </span>
+                                <h3 class="fw-bold text-dark mb-1">{{ current_user.rutina_asignada.nombre }}</h3>
+                                <p class="text-muted small mb-0">
+                                    Diseñada para: <strong>{{ current_user.rutina_asignada.meta }}</strong> ({{ current_user.rutina_asignada.nivel }})
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Sesiones de la Rutina -->
+                        <div class="my-3">
+                            <h6 class="text-muted small fw-semibold text-uppercase mb-2">Días y Sesiones de Entrenamiento:</h6>
+                            {% if current_user.rutina_asignada.sesiones %}
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% for s in current_user.rutina_asignada.sesiones|sort(attribute='dia') %}
+                                        <div class="border rounded p-3 bg-light text-center" style="min-width: 130px;">
+                                            <span class="badge bg-primary d-block mb-1">
+                                                {{ dias_nombres.get(s.dia, 'Día ' ~ s.dia) }}
+                                            </span>
+                                            <strong class="d-block text-dark small">{{ s.nombre }}</strong>
+                                            <span class="text-muted extra-small" style="font-size: 0.75rem;">
+                                                {{ s.prescripciones|length }} ejercicios
+                                            </span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted small fst-italic mb-0">Tu entrenador está configurando los ejercicios de esta rutina.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botón para ir al entrenamiento del día -->
+                        <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Listo para comenzar a registrar tus series y pesos.</span>
+                            <a href="{{ url_for('entrenamiento_hoy') }}" class="btn btn-success btn-lg px-4 fw-bold shadow-sm">
+                                🏋️ Entrenar Hoy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- CASO 2: Estado de Espera (RF13 / CU05) -->
+                <div class="card shadow-sm border-warning border-2 bg-white">
+                    <div class="card-body p-5 text-center d-flex flex-column justify-content-center">
+                        <div class="mb-3">
+                            <span class="display-4 text-warning">⏳</span>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">Esperando asignación de rutina del entrenador</h4>
+                        <p class="text-muted mb-4 mx-auto" style="max-width: 520px;">
+                            Tu entrenador <strong>{{ current_user.entrenador.nombre_usuario }}</strong> ha recibido tus datos de registro y está preparando o seleccionando la rutina óptima para tu meta de <strong>{{ current_user.meta }}</strong>.
+                        </p>
+                        <div class="alert alert-light border d-inline-block mx-auto py-2 px-4 mb-0 small text-muted">
+                            En cuanto tu entrenador te asigne un plan, verás el desglose completo aquí para empezar a registrar tus entrenamientos.
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,9 +1,7 @@
 {% extends "base.html" %}
-{% block title %}TrainerApp - Mi Panel de Entrenamiento{% endblock %}
+{% block title %}TrainerApp - Mi Perfil{% endblock %}
 
 {% block content %}
-{% set dias_nombres = {1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo'} %}
-
 <div class="container mt-4">
     <!-- Encabezado de Bienvenida -->
     <div class="row align-items-center mb-4">
@@ -17,97 +15,39 @@
     </div>
 
     <!-- Ficha de Datos Físicos y Objetivos -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100 bg-white">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase fw-semibold small mb-3">Mi Perfil Físico</h6>
-                    <ul class="list-unstyled mb-0">
-                        <li class="d-flex justify-content-between py-2 border-bottom">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title fw-bold text-dark mb-0">Mi Perfil Físico</h5>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Datos Actuales</span>
+                    </div>
+
+                    <ul class="list-unstyled mb-4">
+                        <li class="d-flex justify-content-between align-items-center py-3 border-bottom">
                             <span class="text-muted">Peso actual:</span>
-                            <span class="fw-bold">{{ current_user.peso }} kg</span>
+                            <span class="fw-bold fs-5 text-dark">{{ current_user.peso }} kg</span>
                         </li>
-                        <li class="d-flex justify-content-between py-2 border-bottom">
-                            <span class="text-muted">Meta:</span>
-                            <span class="badge {% if current_user.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+                        <li class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <span class="text-muted">Meta u objetivo:</span>
+                            <span class="badge {% if current_user.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} fs-6">
                                 {{ current_user.meta }}
                             </span>
                         </li>
-                        <li class="d-flex justify-content-between py-2">
-                            <span class="text-muted">Nivel:</span>
-                            <span class="badge bg-secondary">{{ current_user.nivel_experiencia }}</span>
+                        <li class="d-flex justify-content-between align-items-center py-3">
+                            <span class="text-muted">Nivel de experiencia:</span>
+                            <span class="badge bg-secondary fs-6">{{ current_user.nivel_experiencia }}</span>
                         </li>
                     </ul>
+
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('mi_rutina') }}" class="btn btn-outline-primary">
+                            🏋️ Ver Mi Rutina
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Estado de Asignación de Rutina (CU05 / RF13) -->
-        <div class="col-md-8">
-            {% if current_user.rutina_asignada %}
-                <!-- CASO 1: Rutina Asignada con Éxito -->
-                <div class="card shadow-sm border-success border-2 h-100 bg-white">
-                    <div class="card-body p-4 d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div>
-                                <span class="badge bg-success-subtle text-success border border-success px-3 py-1 mb-2 fw-semibold">
-                                    ✓ Rutina Asignada
-                                </span>
-                                <h3 class="fw-bold text-dark mb-1">{{ current_user.rutina_asignada.nombre }}</h3>
-                                <p class="text-muted small mb-0">
-                                    Diseñada para: <strong>{{ current_user.rutina_asignada.meta }}</strong> ({{ current_user.rutina_asignada.nivel }})
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Sesiones de la Rutina -->
-                        <div class="my-3">
-                            <h6 class="text-muted small fw-semibold text-uppercase mb-2">Días de Entrenamiento:</h6>
-                            {% if current_user.rutina_asignada.sesiones %}
-                                <div class="d-flex flex-wrap gap-2">
-                                    {% for s in current_user.rutina_asignada.sesiones|sort(attribute='dia') %}
-                                        <div class="border rounded p-2 bg-light text-center" style="min-width: 120px;">
-                                            <span class="badge bg-primary d-block mb-1">
-                                                {{ dias_nombres.get(s.dia, 'Día ' ~ s.dia) }}
-                                            </span>
-                                            <strong class="small d-block text-dark">{{ s.nombre }}</strong>
-                                            <span class="text-muted extra-small" style="font-size: 0.75rem;">
-                                                {{ s.prescripciones|length }} ejercicios
-                                            </span>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted small fst-italic mb-0">Tu entrenador está configurando los ejercicios de esta rutina.</p>
-                            {% endif %}
-                        </div>
-
-                        <!-- Botón para ir al entrenamiento del día -->
-                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                            <span class="text-muted small">Listo para comenzar a registrar tus series y pesos.</span>
-                            <a href="{{ url_for('entrenamiento_hoy') }}" class="btn btn-success btn-lg px-4 fw-bold shadow-sm">
-                                🏋️ Entrenar Hoy
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <!-- CASO 2: Estado de Espera (RF13 / CU05) -->
-                <div class="card shadow-sm border-warning border-2 h-100 bg-white">
-                    <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
-                        <div class="mb-3">
-                            <span class="display-4 text-warning">⏳</span>
-                        </div>
-                        <h4 class="fw-bold text-dark mb-2">Esperando asignación de rutina del entrenador</h4>
-                        <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">
-                            Tu entrenador <strong>{{ current_user.entrenador.nombre_usuario }}</strong> ha recibido tus datos de registro y está preparando o seleccionando la rutina óptima para tu meta de <strong>{{ current_user.meta }}</strong>.
-                        </p>
-                        <div class="alert alert-light border d-inline-block mx-auto py-2 px-4 mb-0 small text-muted">
-                            Te notificaremos aquí en cuanto tu plan de entrenamiento esté listo.
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
         </div>
     </div>
 </div>
