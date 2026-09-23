@@ -488,3 +488,18 @@ def guardar_entrenamiento(sesion_id):
     db.session.commit()
     flash(f'¡Entrenamiento "{sesion.nombre}" guardado con éxito! Duración registrada: {duracion_minutos} min.', 'success')
     return redirect(url_for('perfil'))
+
+@app.route('/trainer/clientes/<int:cliente_id>/entrenamientos')
+@role_required('entrenador')
+def ver_entrenamientos_cliente(cliente_id):
+    # 1. Obtener cliente y verificar autorización 
+    cliente = db.session.get(Cliente, cliente_id)
+    if not cliente or cliente.entrenador_id != current_user.id:
+        flash('Cliente no encontrad o no autorizado', 'danger')
+        return redirect(url_for('clientes'))
+
+    # 2. Consultar a la base de datos el historial de entrenamientos ordenados por fecha descendente
+    registros = db.session.scalars(sa.select(RegistroSesionEntrenamiento).where(RegistroSesionEntrenamiento.cliente_id == cliente.id).order_by(RegistroSesionEntrenamiento.fecha.desc(), RegistroSesionEntrenamiento.id.desc())).all()
+
+    # 3. Renderizar la vista de historial del cliente
+    return render_template('trainer/historial_cliente.html', cliente=cliente, registros=registros)

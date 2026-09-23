@@ -50,6 +50,9 @@
                                     {% endif %}
                                 </td>
                                 <td class="text-end">
+                                    <a href="{{ url_for('ver_entrenamientos_cliente', cliente_id=cliente.id) }}" class="btn btn-outline-info btn-sm me-1">
+                                        📊 Ver Entrenamientos
+                                    </a>
                                     <a href="{{ url_for('asignar_rutina', cliente_id=cliente.id) }}" class="btn {% if cliente.rutina_asignada %}btn-outline-secondary{% else %}btn-primary{% endif %} btn-sm">
                                         {% if cliente.rutina_asignada %}Cambiar Rutina{% else %}Asignar Rutina{% endif %}
                                     </a>

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}TrainerApp - Historial de {{ cliente.nombre_usuario }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <!-- Botón Volver -->
+    <div class="mb-3">
+        <a href="{{ url_for('clientes') }}" class="btn btn-outline-secondary btn-sm">
+            &larr; Volver a Mis Clientes
+        </a>
+    </div>
+
+    <!-- Cabecera del Cliente -->
+    <div class="card shadow-sm border-0 bg-white mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h2 class="fw-bold mb-1 text-dark">Historial de Entrenamientos: {{ cliente.nombre_usuario }}</h2>
+                    <p class="text-muted mb-0">
+                        Meta: <span class="badge {% if cliente.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">{{ cliente.meta }}</span> | 
+                        Nivel: <span class="badge bg-secondary">{{ cliente.nivel_experiencia }}</span> | 
+                        Peso Actual: <strong>{{ cliente.peso }} kg</strong>
+                    </p>
+                </div>
+                <div>
+                    {% if cliente.rutina_asignada %}
+                        <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6">
+                            Rutina: {{ cliente.rutina_asignada.nombre }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-2 fs-6">
+                            Sin Rutina Asignada
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Sesiones Registradas (CU14) -->
+    {% if not registros %}
+        <!-- Flujo Alternativo CU14: No hay entrenamientos -->
+        <div class="card shadow-sm border-0 bg-white text-center py-5">
+            <div class="card-body">
+                <span class="display-4">📋</span>
+                <h4 class="fw-bold text-dark mt-3">Sin entrenamientos registrados</h4>
+                <p class="text-muted mb-0">
+                    {{ cliente.nombre_usuario }} aún no ha completado ni registrado ninguna sesión de entrenamiento.
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <!-- Flujo Normal CU14: Desglose de entrenamientos completados -->
+        <div class="d-flex flex-column gap-4">
+            {% for r in registros %}
+                <div class="card shadow-sm border-0 bg-white">
+                    <!-- Cabecera de la Sesión -->
+                    <div class="card-header bg-light py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">
+                                🏋️ {{ r.sesion.nombre }}
+                            </h5>
+                            <small class="text-muted">
+                                📅 Fecha: <strong>{{ r.fecha.strftime('%d/%m/%Y') }}</strong>
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <span class="badge bg-primary fs-6">
+                                ⏱️ {{ r.duracion_minutos }} min
+                            </span>
+                            <span class="badge bg-secondary fs-6">
+                                Ánimo: {{ r.estado_animo }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Cuerpo con los Ejercicios y Series -->
+                    <div class="card-body p-4">
+                        {% for reg_ej in r.registros_ejercicios %}
+                            <div class="mb-4 {% if not loop.last %}border-bottom pb-4{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fw-bold text-dark mb-0">
+                                        {{ loop.index }}. {{ reg_ej.ejercicio.nombre }}
+                                    </h6>
+                                    <span class="badge bg-light text-dark border">
+                                        {{ reg_ej.ejercicio.grupo_muscular }}
+                                    </span>
+                                </div>
+
+                                {% if reg_ej.notas_adicionales %}
+                                    <div class="alert alert-light border small py-2 px-3 mb-2 text-muted fst-italic">
+                                        📝 <strong>Nota del alumno:</strong> {{ reg_ej.notas_adicionales }}
+                                    </div>
+                                {% endif %}
+
+                                <!-- Tabla de Series -->
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered text-center align-middle mb-0" style="max-width: 500px;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="width: 25%;">Serie</th>
+                                                <th style="width: 40%;">Peso Usado</th>
+                                                <th style="width: 35%;">Reps Logradas</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for s in reg_ej.series %}
+                                                <tr>
+                                                    <td class="fw-bold text-muted bg-light">Serie {{ s.numero_serie }}</td>
+                                                    <td class="fw-bold text-primary">{{ s.peso_usado }} kg</td>
+                                                    <td class="fw-bold text-success">{{ s.repeticiones_logradas }} reps</td>
+                                                </tr>
+                                            {% else %}
+                                                <tr>
+                                                    <td colspan="3" class="text-muted small fst-italic">No se registraron series para este ejercicio.</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
