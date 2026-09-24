@@ -1,0 +1,157 @@
+2026-09-20 09:14:22, jose, Login
+2026-09-20 09:15:05, jose, Consulta
+2026-09-20 09:22:40, jose, Registro
+2026-09-20 09:30:12, jose, Logout
+2026-09-21 10:05:18, Maria, Login
+2026-09-21 10:06:02, Maria, Consulta
+2026-09-21 10:52:44, Maria, Registro
+2026-09-21 10:53:10, Maria, Logout
+2026-09-22 15:30:00, jose, Login
+2026-09-22 15:31:12, jose, Consulta
+2026-09-22 15:35:40, jose, Consulta
+2026-09-22 15:40:05, jose, Logout
+2026-09-23 08:12:00, Maria, Login
+2026-09-23 08:13:25, Maria, Consulta
+2026-09-23 21:37:48, jose, Login
+2026-09-23 21:37:48, jose, Consulta: Mis Clientes
+2026-09-23 21:38:04, jose, Consulta: Librería de Ejercicios
+2026-09-23 21:38:49, jose, Login
+2026-09-23 21:38:49, jose, Consulta: Mis Clientes
+2026-09-23 21:38:55, jose, Consulta: Librería de Ejercicios
+2026-09-23 21:39:08, jose, Consulta: Mis Rutinas
+2026-09-23 21:39:25, jose, Consulta: Mis Clientes
+2026-09-23 21:39:28, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 21:39:41, jose, Consulta: Mis Clientes
+2026-09-23 21:39:44, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-23 21:39:54, jose, Consulta: Mis Rutinas
+2026-09-23 21:39:56, jose, Consulta: Detalle Rutina "Power 1"
+2026-09-23 21:40:09, jose, Consulta: Mis Rutinas
+2026-09-23 21:41:23, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:00:21, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:00:22, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:00:22, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:00:23, jose, Consulta: Mis Rutinas
+2026-09-23 22:00:26, jose, Consulta: Mis Clientes
+2026-09-23 22:00:30, jose, Consulta: Asignar Rutina a Cliente Maria
+2026-09-23 22:06:37, jose, Consulta: Mis Clientes
+2026-09-23 22:06:40, jose, Consulta: Mis Clientes
+2026-09-23 22:06:41, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:06:45, jose, Consulta: Mis Rutinas
+2026-09-23 22:06:47, jose, Consulta: Mis Clientes
+2026-09-23 22:06:48, jose, Consulta: Mis Clientes
+2026-09-23 22:06:53, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 22:07:05, jose, Consulta: Mis Clientes
+2026-09-23 22:07:07, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:07:15, jose, Logout
+2026-09-23 22:07:21, maria, Login
+2026-09-23 22:07:21, maria, Consulta: Mi Perfil
+2026-09-23 22:07:27, maria, Consulta: Mi Rutina
+2026-09-23 22:07:32, maria, Consulta: Entrenamiento del Día
+2026-09-23 22:08:16, maria, Registro: Entrenamiento completado "Squat" (Duración: 1 min)
+2026-09-23 22:08:16, maria, Consulta: Mi Perfil
+2026-09-23 22:08:24, maria, Consulta: Mi Rutina
+2026-09-23 22:08:28, maria, Consulta: Mi Perfil
+2026-09-23 22:08:33, maria, Consulta: Mi Perfil
+2026-09-23 22:08:34, maria, Consulta: Mi Rutina
+2026-09-23 22:08:36, maria, Consulta: Mi Perfil
+2026-09-23 22:29:59, maria, Consulta: Mi Perfil
+2026-09-23 22:30:02, maria, Consulta: Mi Progreso
+2026-09-23 22:30:18, maria, Consulta: Mi Rutina
+2026-09-23 22:30:24, maria, Logout
+2026-09-23 22:30:29, jose, Login
+2026-09-23 22:30:29, jose, Consulta: Mis Clientes
+2026-09-23 22:30:33, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:30:37, jose, Consulta: Mis Clientes
+2026-09-23 22:30:38, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 22:30:53, jose, Consulta: Mis Clientes
+2026-09-23 22:31:00, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 22:31:13, jose, Registro: Recomendación enviada a Maria
+2026-09-23 22:31:13, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 22:31:24, jose, Consulta: Mis Clientes
+2026-09-23 22:31:32, jose, Logout
+2026-09-23 22:31:39, maria, Login
+2026-09-23 22:31:39, maria, Consulta: Mi Perfil
+2026-09-23 22:31:44, maria, Consulta: Mi Rutina
+2026-09-23 22:31:49, maria, Consulta: Mi Progreso
+2026-09-23 22:32:17, maria, Logout
+2026-09-23 22:32:24, jose, Login
+2026-09-23 22:32:25, jose, Consulta: Mis Clientes
+2026-09-23 22:32:29, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:32:31, jose, Consulta: Mis Clientes
+2026-09-23 22:32:37, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 22:32:48, jose, Consulta: Mis Clientes
+2026-09-23 22:32:49, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-23 22:32:56, jose, Registro: Recomendación enviada a maria
+2026-09-23 22:32:56, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-23 22:33:00, jose, Logout
+2026-09-23 22:33:05, maria, Login
+2026-09-23 22:33:05, maria, Consulta: Mi Perfil
+2026-09-23 22:33:07, maria, Consulta: Mi Rutina
+2026-09-23 22:33:10, maria, Consulta: Mi Progreso
+2026-09-23 22:33:48, maria, Logout
+2026-09-23 22:33:54, jose, Login
+2026-09-23 22:33:54, jose, Consulta: Mis Clientes
+2026-09-23 22:33:56, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:33:58, jose, Consulta: Mis Clientes
+2026-09-23 22:33:59, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-23 22:34:18, jose, Consulta: Mis Clientes
+2026-09-23 22:34:29, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-23 22:34:39, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:34:42, jose, Consulta: Mis Rutinas
+2026-09-23 22:34:45, jose, Logout
+2026-09-23 22:34:50, maria, Login
+2026-09-23 22:34:50, maria, Consulta: Mi Perfil
+2026-09-23 22:34:52, maria, Consulta: Mi Progreso
+2026-09-23 22:46:35, maria, Consulta: Mi Perfil
+2026-09-23 22:46:39, maria, Consulta: Mi Rutina
+2026-09-23 22:46:42, maria, Consulta: Mi Rutina
+2026-09-23 22:46:42, maria, Consulta: Mi Progreso
+2026-09-23 22:46:46, maria, Registro: Recomendación IA generada para maria
+2026-09-23 22:46:46, maria, Consulta: Mi Progreso
+2026-09-23 22:47:19, maria, Consulta: Mi Progreso
+2026-09-23 22:47:21, maria, Registro: Recomendación IA generada para maria
+2026-09-23 22:47:21, maria, Consulta: Mi Progreso
+2026-09-23 22:47:26, maria, Consulta: Mi Progreso
+2026-09-23 22:47:34, maria, Logout
+2026-09-23 22:47:40, jose, Login
+2026-09-23 22:47:40, jose, Consulta: Mis Clientes
+2026-09-23 22:47:43, jose, Consulta: Librería de Ejercicios
+2026-09-23 22:47:44, jose, Consulta: Mis Clientes
+2026-09-23 22:47:47, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-23 22:48:00, jose, Logout
+2026-09-23 22:48:05, maria, Login
+2026-09-23 22:48:05, maria, Consulta: Mi Perfil
+2026-09-23 22:48:08, maria, Consulta: Mi Progreso
+2026-09-23 22:53:39, maria, Consulta: Mi Perfil
+2026-09-23 22:53:42, maria, Consulta: Mi Progreso
+2026-09-23 22:53:45, maria, Consulta: Mi Rutina
+2026-09-23 22:53:48, maria, Consulta: Mi Progreso
+2026-09-23 22:55:41, maria, Consulta: Mi Rutina
+2026-09-23 22:55:42, maria, Consulta: Mi Perfil
+2026-09-23 22:55:45, maria, Consulta: Mi Progreso
+2026-09-23 22:55:47, maria, Registro: Recomendación IA generada para maria
+2026-09-23 22:55:47, maria, Consulta: Mi Progreso
+2026-09-23 23:05:22, maria, Logout
+2026-09-23 23:05:27, jose, Login
+2026-09-23 23:05:27, jose, Consulta: Mis Clientes
+2026-09-23 23:05:29, jose, Consulta: Librería de Ejercicios
+2026-09-23 23:05:31, jose, Consulta: Mis Rutinas
+2026-09-23 23:05:32, jose, Consulta: Mis Clientes
+2026-09-23 23:05:33, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-24 01:19:51, maria, Login
+2026-09-24 01:19:51, maria, Consulta: Mi Perfil
+2026-09-24 01:19:53, maria, Consulta: Mi Rutina
+2026-09-24 01:19:55, maria, Consulta: Mi Progreso
+2026-09-24 01:20:12, maria, Logout
+2026-09-24 01:20:17, jose, Login
+2026-09-24 01:20:17, jose, Consulta: Mis Clientes
+2026-09-24 01:20:19, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-24 01:20:31, jose, Registro: Recomendación IA supervisada para Maria
+2026-09-24 01:20:31, jose, Consulta: Historial Entrenamientos de Cliente Maria
+2026-09-24 01:20:42, jose, Consulta: Librería de Ejercicios
+2026-09-24 01:20:42, jose, Consulta: Mis Clientes
+2026-09-24 02:00:00, jose, Consulta: Mis Clientes
+2026-09-24 02:00:06, jose, Logout
+2026-09-24 02:00:12, maria, Login
+2026-09-24 02:00:12, maria, Consulta: Mi Perfil
+2026-09-24 09:22:39, Maria, Consulta: Mi Progreso

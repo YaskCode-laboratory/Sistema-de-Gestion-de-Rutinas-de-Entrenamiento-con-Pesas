@@ -10,10 +10,14 @@ from app.forms import SessionForm
 from app.forms import PrescriptionForm
 from app.forms import ActualizarPesoForm
 from flask_login import current_user, login_user, logout_user, login_required
-from app.utils import role_required
+from app.utils import role_required, registrar_log
 import sqlalchemy as sa
 from app import db
+<<<<<<< HEAD
 from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie, RegistroPesoCorporal 
+=======
+from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie, Recomendacion 
+>>>>>>> origin/josep-cambios
 from flask import request
 from urllib.parse import urlsplit
 from datetime import date, datetime, timedelta
@@ -44,6 +48,7 @@ def login():
             form.password.errors.append("La contraseña es invalida")
             return render_template('auth/login.html', form=form), 400
         login_user(usuario, remember=form.remember_me.data)
+        registrar_log('Login', usuario=usuario.nombre_usuario)
 
         next_page = request.args.get('next')
         if not next_page or urlsplit(next_page).netloc != '':
@@ -54,7 +59,9 @@ def login():
 
 @app.route('/logout')
 def logout():
+    nombre = current_user.nombre_usuario if current_user.is_authenticated else 'Anonimo'
     logout_user()
+    registrar_log('Logout', usuario=nombre)
     return redirect(url_for('home'))
 
 @app.route("/signup", methods=['GET', 'POST'])
@@ -70,6 +77,7 @@ def signup():
             usuario.generar_codigo_entrenador()
             db.session.add(usuario)
             db.session.commit()
+            registrar_log('Registro: Entrenador', usuario=usuario.nombre_usuario)
             flash('Registro exitoso!')
             return redirect(url_for('login'))
 
@@ -128,6 +136,7 @@ def client_profile():
         )
         db.session.add(primer_peso)
         db.session.commit()
+        registrar_log('Registro: Cliente', usuario=cliente.nombre_usuario)
 
         # Clean session after successful registration
         session.pop('reg_cliente')
@@ -139,6 +148,7 @@ def client_profile():
 @app.route('/clientes')
 @role_required('entrenador')
 def clientes():
+    registrar_log('Consulta: Mis Clientes')
     return render_template('trainer/clientes.html')
 
 @app.route('/trainer/ejercicios', methods=['GET', 'POST'])
@@ -152,9 +162,11 @@ def ejercicios():
         if delete_id:                                                                                                                                                                                        
             ejercicio = db.session.get(Ejercicio, int(delete_id))                                                                                                                                            
             if ejercicio and ejercicio.entrenador_id == current_user.id:                                                                                                                                     
+                nombre_ej = ejercicio.nombre
                 db.session.delete(ejercicio)                                                                                                                                                                 
-                db.session.commit()                                                                                                                                                                          
-                flash(f'Ejercicio "{ejercicio.nombre}" eliminado.', 'success')                                                                                                                               
+                db.session.commit()
+                registrar_log(f'Eliminación: Ejercicio "{nombre_ej}"')
+                flash(f'Ejercicio "{nombre_ej}" eliminado.', 'success')                                                                                                                               
             else:                                                                                                                                                                                            
                 flash("No puedes eliminar un ejercicio base del sistema.", "danger")                                                                                                                         
             return redirect(url_for('ejercicios'))                                                                                                                                                           
@@ -168,7 +180,8 @@ def ejercicios():
                 entrenador_id=current_user.id                                                                                                                                                                
             )                                                                                                                                                                                                
             db.session.add(nuevo)                                                                                                                                                                            
-            db.session.commit()                                                                                                                                                                              
+            db.session.commit()
+            registrar_log(f'Registro: Ejercicio "{nuevo.nombre}"')
             flash(f'Ejercicio "{nuevo.nombre}" agregado.', 'success')                                                                                                                                        
             return redirect(url_for('ejercicios'))                                                                                                                                                           
                                                                                                                                                                                                                 
@@ -180,7 +193,8 @@ def ejercicios():
         )                                                                                                                                                                                                    
     ).order_by(Ejercicio.grupo_muscular, Ejercicio.nombre)                                                                                                                                                   
                                                                                                                                                                                                                 
-    lista = db.session.scalars(query).all()                                                                                                                                                                  
+    lista = db.session.scalars(query).all()
+    registrar_log('Consulta: Librería de Ejercicios')
     return render_template('trainer/ejercicios.html', form=form, ejercicios=lista)      
 
 @app.route('/trainer/rutinas', methods=['GET', 'POST'])
@@ -194,9 +208,11 @@ def rutinas():
         if delete_id:
             rutina = db.session.get(Rutina, int(delete_id))
             if rutina and rutina.entrenador_id == current_user.id:
+                nombre_rutina = rutina.nombre
                 db.session.delete(rutina)
                 db.session.commit()
-                flash(f'Rutina "{rutina.nombre}" eliminada correctamente.', 'success')
+                registrar_log(f'Eliminación: Rutina "{nombre_rutina}"')
+                flash(f'Rutina "{nombre_rutina}" eliminada correctamente.', 'success')
             else:
                 flash('No tienes permiso para eliminar esta rutina.', 'danger')
             return redirect(url_for('rutinas'))
@@ -211,11 +227,13 @@ def rutinas():
             )
             db.session.add(nueva_rutina)
             db.session.commit()
+            registrar_log(f'Registro: Rutina "{nueva_rutina.nombre}"')
             flash(f'Rutina "{nueva_rutina.nombre}" creada con éxito.', 'success')
             return redirect(url_for('rutinas'))
 
     query = sa.select(Rutina).where(Rutina.entrenador_id == current_user.id).order_by(Rutina.nombre)
     mis_rutinas = db.session.scalars(query).all()
+    registrar_log('Consulta: Mis Rutinas')
     return render_template('trainer/rutinas.html', form=form, rutinas=mis_rutinas)
 
 @app.route('/trainer/rutinas/<int:rutina_id>') # Muestra formularios de creacion de rutina
@@ -239,7 +257,8 @@ def detalle_rutina(rutina_id):
     ejercicios = db.session.scalars(sa.select(Ejercicio).where(sa.or_(Ejercicio.entrenador_id.is_(None), Ejercicio.entrenador_id == current_user.id)).order_by(Ejercicio.grupo_muscular, Ejercicio.nombre)).all()
     prescription_form.ejercicio_id.choices = [(e.id, f'{e.nombre} ({e.grupo_muscular})') for e in ejercicios]
 
-    # 4. Renderizar la plantilla
+    # 4. Registrar log y renderizar la plantilla
+    registrar_log(f'Consulta: Detalle Rutina "{rutina.nombre}"')
     return render_template('/trainer/detalle_rutina.html', rutina=rutina, session_form=session_form, prescription_form=prescription_form)
 
 @app.route('/trainer/rutinas/<int:rutina_id>/sesiones/agregar-sesion', methods=['POST']) # Ruta para agregar sesion
@@ -255,6 +274,7 @@ def agregar_sesion(rutina_id):
         nueva_sesion = Sesion(nombre=form.nombre.data.strip(), dia=int(form.dia.data), rutina_id=rutina_id)
         db.session.add(nueva_sesion)
         db.session.commit()
+        registrar_log(f'Registro: Sesión "{nueva_sesion.nombre}" en Rutina "{rutina.nombre}"')
         flash(f'Sesión "{nueva_sesion.nombre}" agregada con éxito.', 'success')
     else:
         for error in form.nombre.errors:
@@ -267,8 +287,11 @@ def agregar_sesion(rutina_id):
 def eliminar_sesion(rutina_id, sesion_id):
     sesion = db.session.get(Sesion, sesion_id)
     if sesion and sesion.rutina.entrenador_id == current_user.id:
+        nombre_sesion = sesion.nombre
+        rutina_nombre = sesion.rutina.nombre
         db.session.delete(sesion)
         db.session.commit()
+        registrar_log(f'Eliminación: Sesión "{nombre_sesion}" de Rutina "{rutina_nombre}"')
     else:
         flash('No tienes permiso para eliminar esta sesión.', 'danger')
 
@@ -294,6 +317,7 @@ def agregar_prescripcion_ejercicio(rutina_id, sesion_id):
         prescripcion = PrescripcionEjercicioSesion(sesion_id=sesion.id, ejercicio_id=form.ejercicio_id.data, series=form.series.data, repeticiones=form.repeticiones.data.strip(), descanso_segundos=form.descanso_segundos.data, intensidad=form.intensidad.data.strip() if form.intensidad.data else None, notas=form.notas.data.strip() if form.notas.data else None)
         db.session.add(prescripcion)
         db.session.commit()
+        registrar_log(f'Registro: Prescripción en Sesión "{sesion.nombre}"')
         flash(f'Ejercicio agregado a la sesión "{sesion.nombre}".', 'success')
     else:
         for field, errors in form.errors.items():
@@ -309,8 +333,10 @@ def eliminar_prescripcion(prescripcion_id):
     # Verificamos que exista y que la rutina sea del entrenador en sesión
     if prescripcion and prescripcion.sesion.rutina.entrenador_id == current_user.id:
         rutina_id = prescripcion.sesion.rutina_id  # Guardamos el ID para saber a dónde redirigir
+        nombre_sesion = prescripcion.sesion.nombre
         db.session.delete(prescripcion)
         db.session.commit()
+        registrar_log(f'Eliminación: Prescripción de Sesión "{nombre_sesion}"')
         flash('Ejercicio eliminado de la sesión.', 'success')
         return redirect(url_for('detalle_rutina', rutina_id=rutina_id))
     else:
@@ -330,6 +356,7 @@ def asignar_rutina(cliente_id):
         if action == 'desasignar':
             cliente.rutina_id = None
             db.session.commit()
+            registrar_log(f'Eliminación: Desasignar Rutina de Cliente {cliente.nombre_usuario}')
             flash(f'Se ha desvinculado la rutina de {cliente.nombre_usuario}.', 'info')
             return redirect(url_for('clientes'))
 
@@ -342,6 +369,7 @@ def asignar_rutina(cliente_id):
 
         cliente.rutina_id = rutina.id
         db.session.commit()
+        registrar_log(f'Registro: Asignación de Rutina "{rutina.nombre}" a Cliente {cliente.nombre_usuario}')
         flash(f'¡Rutina "{rutina.nombre}" asignada exitosamente a {cliente.nombre_usuario}!', 'success')
         return redirect(url_for('clientes'))
 
@@ -363,6 +391,7 @@ def asignar_rutina(cliente_id):
     ).order_by(Rutina.nombre)
     otras_rutinas = db.session.scalars(query_otras).all()
 
+    registrar_log(f'Consulta: Asignar Rutina a Cliente {cliente.nombre_usuario}')
     return render_template(
         'trainer/asignar_rutina.html',
         cliente=cliente,
@@ -373,11 +402,13 @@ def asignar_rutina(cliente_id):
 @app.route('/perfil')
 @role_required('cliente')
 def perfil():
+    registrar_log('Consulta: Mi Perfil')
     return render_template('cliente/profile.html')
 
 @app.route('/cliente/mi-rutina')
 @role_required('cliente')
 def mi_rutina():
+    registrar_log('Consulta: Mi Rutina')
     return render_template('cliente/mi_rutina.html')
 
 @app.route('/cliente/mi-progreso', methods=['GET', 'POST'])
@@ -575,6 +606,7 @@ def entrenamiento_hoy():
         session.pop('sesion_activa_id', None)
         hora_inicio_str = None
 
+    registrar_log('Consulta: Entrenamiento del Día')
     return render_template(
         'cliente/entrenamiento_hoy.html',
         sesion=sesion_a_mostrar,
@@ -642,6 +674,7 @@ def guardar_entrenamiento(sesion_id):
                 db.session.add(serie)
 
     db.session.commit()
+    registrar_log(f'Registro: Entrenamiento completado "{sesion.nombre}" (Duración: {duracion_minutos} min)')
     flash(f'¡Entrenamiento "{sesion.nombre}" guardado con éxito! Duración registrada: {duracion_minutos} min.', 'success')
     return redirect(url_for('perfil'))
 
@@ -651,11 +684,114 @@ def ver_entrenamientos_cliente(cliente_id):
     # 1. Obtener cliente y verificar autorización 
     cliente = db.session.get(Cliente, cliente_id)
     if not cliente or cliente.entrenador_id != current_user.id:
-        flash('Cliente no encontrad o no autorizado', 'danger')
+        flash('Cliente no encontrado o no autorizado', 'danger')
         return redirect(url_for('clientes'))
 
     # 2. Consultar a la base de datos el historial de entrenamientos ordenados por fecha descendente
     registros = db.session.scalars(sa.select(RegistroSesionEntrenamiento).where(RegistroSesionEntrenamiento.cliente_id == cliente.id).order_by(RegistroSesionEntrenamiento.fecha.desc(), RegistroSesionEntrenamiento.id.desc())).all()
 
-    # 3. Renderizar la vista de historial del cliente
-    return render_template('trainer/historial_cliente.html', cliente=cliente, registros=registros)
+    # 3. Historial de recomendaciones de IA generadas para este cliente
+    recomendaciones_ia = db.session.scalars(
+        sa.select(Recomendacion)
+        .where(Recomendacion.cliente_id == cliente.id)
+        .order_by(Recomendacion.fecha.desc())
+    ).all()
+
+    # 4. Registrar log y renderizar la vista de historial del cliente
+    registrar_log(f'Consulta: Historial Entrenamientos de Cliente {cliente.nombre_usuario}')
+    return render_template(
+        'trainer/historial_cliente.html',
+        cliente=cliente,
+        registros=registros,
+        recomendaciones_ia=recomendaciones_ia
+    )
+
+@app.route('/cliente/progreso')
+@role_required('cliente')
+def progreso():
+    # 1. Recomendaciones recibidas de su entrenador
+    recomendaciones = db.session.scalars(
+        sa.select(Recomendacion)
+        .where(Recomendacion.cliente_id == current_user.id)
+        .order_by(Recomendacion.fecha.desc())
+    ).all()
+
+    # 2. Historial de entrenamientos para métricas de progreso (CU16)
+    entrenamientos = db.session.scalars(
+        sa.select(RegistroSesionEntrenamiento)
+        .where(RegistroSesionEntrenamiento.cliente_id == current_user.id)
+        .order_by(RegistroSesionEntrenamiento.fecha.desc())
+    ).all()
+
+    total_sesiones = len(entrenamientos)
+    total_minutos = sum(e.duracion_minutos for e in entrenamientos)
+
+    registrar_log('Consulta: Mi Progreso')
+    return render_template(
+        'cliente/progreso.html',
+        recomendaciones=recomendaciones,
+        entrenamientos=entrenamientos,
+        total_sesiones=total_sesiones,
+        total_minutos=total_minutos
+    )
+
+@app.route('/cliente/recomendaciones/<int:rec_id>/marcar-leida', methods=['POST'])
+@role_required('cliente')
+def marcar_recomendacion_leida(rec_id):
+    rec = db.session.get(Recomendacion, rec_id)
+    if rec and rec.cliente_id == current_user.id:
+        rec.leido = True
+        db.session.commit()
+        flash('Recomendación marcada como leída.', 'info')
+    return redirect(url_for('progreso'))
+
+@app.route('/cliente/generar-recomendacion-ia', methods=['POST'])
+@role_required('cliente')
+def generar_recomendacion_ia_cliente():
+    from app.ai_service import generar_recomendacion_ia
+    titulo, mensaje = generar_recomendacion_ia(current_user.id)
+    if not titulo:
+        flash(mensaje, 'warning')
+        return redirect(url_for('progreso'))
+
+    nueva_rec = Recomendacion(
+        cliente_id=current_user.id,
+        entrenador_id=current_user.entrenador_id,
+        titulo=f"🤖 {titulo}",
+        mensaje=mensaje,
+        fecha=datetime.now(),
+        leido=False
+    )
+    db.session.add(nueva_rec)
+    db.session.commit()
+    registrar_log(f'Registro: Recomendación IA generada para {current_user.nombre_usuario}')
+    flash('¡La Inteligencia Artificial ha analizado tus entrenamientos y generado nuevas recomendaciones y proyecciones!', 'success')
+    return redirect(url_for('progreso'))
+
+@app.route('/trainer/clientes/<int:cliente_id>/recomendaciones/generar-ia', methods=['POST'])
+@role_required('entrenador')
+def generar_recomendacion_ia_trainer(cliente_id):
+    cliente = db.session.get(Cliente, cliente_id)
+    if not cliente or cliente.entrenador_id != current_user.id:
+        flash('Operación no permitida o cliente no válido.', 'danger')
+        return redirect(url_for('clientes'))
+
+    from app.ai_service import generar_recomendacion_ia
+    titulo, mensaje = generar_recomendacion_ia(cliente.id)
+    if not titulo:
+        flash(mensaje, 'warning')
+        return redirect(url_for('ver_entrenamientos_cliente', cliente_id=cliente.id))
+
+    nueva_rec = Recomendacion(
+        cliente_id=cliente.id,
+        entrenador_id=current_user.id,
+        titulo=f"🤖 {titulo} (Supervisado por Entrenador)",
+        mensaje=mensaje,
+        fecha=datetime.now(),
+        leido=False
+    )
+    db.session.add(nueva_rec)
+    db.session.commit()
+    registrar_log(f'Registro: Recomendación IA supervisada para {cliente.nombre_usuario}')
+    flash(f'¡Análisis de IA generado y enviado como recomendación a {cliente.nombre_usuario}!', 'success')
+    return redirect(url_for('ver_entrenamientos_cliente', cliente_id=cliente.id))

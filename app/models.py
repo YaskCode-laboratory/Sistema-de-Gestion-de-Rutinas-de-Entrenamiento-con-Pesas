@@ -41,6 +41,7 @@ class Entrenador(Usuario):
     id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Usuario.id), primary_key=True) 
     clientes: so.Mapped[List["Cliente"]] = so.relationship(back_populates="entrenador", foreign_keys="[Cliente.entrenador_id]") #Relacion 1-N
     rutinas: so.Mapped[List['Rutina']] = so.relationship(back_populates='entrenador', foreign_keys='[Rutina.entrenador_id]')
+    recomendaciones_enviadas: so.Mapped[List['Recomendacion']] = so.relationship(back_populates='entrenador', cascade='all, delete-orphan')
 
     #Fields del diagrama de clases
     codigo_entrenador: so.Mapped[str] = so.mapped_column(sa.String(12), unique=True, index=True) # Codigo que introducira el cliente al registrarse para vincularse al entrenador
@@ -75,7 +76,11 @@ class Cliente(Usuario):
     # Relaciones
     entrenador: so.Mapped["Entrenador"] = so.relationship(back_populates="clientes", foreign_keys="[Cliente.entrenador_id]") # Relacion 1-1
     rutina_asignada: so.Mapped[Optional['Rutina']] = so.relationship(foreign_keys='[Cliente.rutina_id]')
+<<<<<<< HEAD
     historial_peso: so.Mapped[List['RegistroPesoCorporal']] = so.relationship(back_populates='cliente', cascade='all, delete-orphan')
+=======
+    recomendaciones: so.Mapped[List['Recomendacion']] = so.relationship(back_populates='cliente', cascade='all, delete-orphan')
+>>>>>>> origin/josep-cambios
 
     # Configuracion de Herencia JTI (Joined Table Inheritance)
     __mapper_args__ = {
@@ -204,7 +209,33 @@ class RegistroPesoCorporal(db.Model):
     #Relaciones
     cliente: so.Mapped['Cliente'] = so.relationship(back_populates='historial_peso')
 
+class Recomendacion(db.Model):
+    # Fields Internos
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    cliente_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Cliente.id, ondelete='CASCADE'), index=True)
+    entrenador_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Entrenador.id), index=True)
 
+    # Fields de datos
+    fecha: so.Mapped[datetime] = so.mapped_column(sa.DateTime, default=datetime.now, index=True)
+    titulo: so.Mapped[str] = so.mapped_column(sa.String(100))
+    mensaje: so.Mapped[str] = so.mapped_column(sa.Text)
+    leido: so.Mapped[bool] = so.mapped_column(sa.Boolean, default=False)
+
+    # Relaciones
+    cliente: so.Mapped['Cliente'] = so.relationship(back_populates='recomendaciones')
+    entrenador: so.Mapped['Entrenador'] = so.relationship(back_populates='recomendaciones_enviadas')
+
+class Recomendacion(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    cliente_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Cliente.id), index=True)
+    entrenador_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Entrenador.id), index=True)
+    fecha: so.Mapped[datetime] = so.mapped_column(default=datetime.now)
+    titulo: so.Mapped[str] = so.mapped_column(sa.String(100)) # Ej: "Ajuste de técnica", "Nutrición"
+    mensaje: so.Mapped[str] = so.mapped_column(sa.Text)
+    
+    # Relaciones
+    cliente: so.Mapped['Cliente'] = so.relationship(back_populates='recomendaciones')
+    entrenador: so.Mapped['Entrenador'] = so.relationship()
 @login.user_loader
 def cargar_usuario(id):
     return db.session.get(Usuario, int(id))

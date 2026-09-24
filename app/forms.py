@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField, FloatField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, RadioField, FloatField, SelectField, IntegerField, TextAreaField
 from wtforms.validators import ValidationError, DataRequired, EqualTo, NumberRange
 import sqlalchemy as sa
 from app import db
@@ -91,3 +91,8 @@ class PrescriptionForm(FlaskForm):
     intensidad = StringField('Intensidad (Opcional)')
     notas = StringField('Notas o Instrucciones (Opcional)')
     submit = SubmitField("Añadir Ejercicio")
+
+class RecomendacionForm(FlaskForm):
+    titulo = StringField('Título o Asunto', validators=[DataRequired(message='Por favor ingrese un título para la recomendación')])
+    mensaje = TextAreaField('Mensaje / Recomendación', validators=[DataRequired(message='Por favor redacte el contenido de la recomendación')])
+    submit = SubmitField('Enviar Recomendación')
