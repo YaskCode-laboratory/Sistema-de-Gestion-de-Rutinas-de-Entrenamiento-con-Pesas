@@ -37,6 +37,52 @@
         </div>
     </div>
 
+    <!-- Sección: Sugerencias y Recomendaciones de IA para el Cliente -->
+    <div class="card shadow-sm border-0 bg-white mb-4">
+        <div class="card-header bg-dark text-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h5 class="fw-bold mb-0">🤖 Análisis y Sugerencias de IA para {{ cliente.nombre_usuario }}</h5>
+                <small class="text-white-50">Genera proyecciones y recomendaciones automáticas basadas en el historial de sesiones completadas.</small>
+            </div>
+            <form action="{{ url_for('generar_recomendacion_ia_trainer', cliente_id=cliente.id) }}" method="POST" class="m-0">
+                <button type="submit" class="btn btn-primary btn-sm fw-semibold shadow-sm">
+                    ⚡ Generar Sugerencia con IA para este Cliente
+                </button>
+            </form>
+        </div>
+        <div class="card-body p-4">
+            {% if not recomendaciones_ia %}
+                <div class="text-center py-4 text-muted">
+                    <span class="display-6">🤖</span>
+                    <h6 class="mt-2 fw-semibold">No hay recomendaciones de IA generadas para este cliente aún</h6>
+                    <p class="small mb-0">Haz clic en el botón superior para que la IA procese las cargas y repeticiones registradas de {{ cliente.nombre_usuario }}.</p>
+                </div>
+            {% else %}
+                <h6 class="fw-bold text-dark mb-3">Historial de Sugerencias Generadas por la IA:</h6>
+                <div class="d-flex flex-column gap-3">
+                    {% for r in recomendaciones_ia %}
+                        <div class="card border border-light-subtle bg-light">
+                            <div class="card-body p-3">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                                    <h6 class="mb-0 fw-bold text-primary">{{ r.titulo }}</h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-muted">📅 {{ r.fecha.strftime('%d/%m/%Y %I:%M %p') }}</small>
+                                        {% if r.leido %}
+                                            <span class="badge bg-success-subtle text-success border border-success">✓ Leída por el alumno</span>
+                                        {% else %}
+                                            <span class="badge bg-warning-subtle text-warning border border-warning">⏳ Pendiente de lectura</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-secondary small" style="white-space: pre-line;">{{ r.mensaje }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
     <!-- Lista de Sesiones Registradas (CU14) -->
     {% if not registros %}
         <!-- Flujo Alternativo CU14: No hay entrenamientos -->
