@@ -23,12 +23,6 @@
     </div>
 
     <div class="form-floating mb-2">
-        {{ form.dias_semana_meta(class="form-select" + (" is-invalid" if form.dias_semana_meta.errors else ""), id="floatingDiasMeta") }}
-        {{ form.dias_semana_meta.label(for="floatingDiasMeta") }}
-        {% for error in form.dias_semana_meta.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
-    </div>
-
-    <div class="form-floating mb-2">
         {{ form.nivel_experiencia(class="form-select" + (" is-invalid" if form.nivel_experiencia.errors else ""), id="floatingNivel") }}
         {{ form.nivel_experiencia.label(for="floatingNivel") }}
         {% for error in form.nivel_experiencia.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}

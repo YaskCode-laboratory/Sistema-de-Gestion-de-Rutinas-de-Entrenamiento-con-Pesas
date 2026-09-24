@@ -1,51 +1,80 @@
 {% extends "base.html" %}
-<<<<<<< HEAD
 {% block title %}TrainerApp - Mi Progreso y Metas{% endblock %}
 
 {% block content %}
 <div class="container mt-4 mb-5">
     <!-- Encabezado Principal -->
-    <div class="row align-items-center mb-4">
-        <div class="col-md-8">
-            <h2 class="fw-bold mb-1">Mi Progreso y Metas 🎯</h2>
-            <p class="text-muted mb-0">
-                Monitorea el cumplimiento de tus objetivos físicos y de entrenamiento con pesas.
-            </p>
-        </div>
-        <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <a href="{{ url_for('entrenamiento_hoy') }}" class="btn btn-primary fw-semibold shadow-sm">
-                🏋️ Ir al Entrenamiento de Hoy
-=======
-{% block title %}TrainerApp - Mi Progreso{% endblock %}
-
-{% block content %}
-<div class="container mt-4 mb-5">
-    <!-- Encabezado -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h2 class="fw-bold mb-1 text-dark">📈 Mi Progreso y Recomendaciones</h2>
-            <p class="text-muted mb-0">Revisa la evolución de tus entrenamientos y las notas dejadas por tu entrenador.</p>
+            <h2 class="fw-bold mb-1 text-dark">Mi Progreso y Metas 🎯</h2>
+            <p class="text-muted mb-0">
+                Monitorea el cumplimiento de tus objetivos físicos, sobrecarga progresiva y recomendaciones de IA.
+            </p>
         </div>
-        <div>
+        <div class="d-flex gap-2">
             <a href="{{ url_for('mi_rutina') }}" class="btn btn-outline-primary btn-sm">
                 🏋️ Ver Mi Rutina
             </a>
-            <a href="{{ url_for('entrenamiento_hoy') }}" class="btn btn-primary btn-sm ms-1">
-                ⚡ Entrenar Hoy
->>>>>>> origin/josep-cambios
+            <a href="{{ url_for('entrenamiento_hoy') }}" class="btn btn-primary btn-sm shadow-sm">
+                ⚡ Ir a Entrenar Hoy
             </a>
         </div>
     </div>
 
-<<<<<<< HEAD
-    <!-- SECCIÓN 1: EVALUACIÓN VISUAL DE METAS CON COLORES (Auditoría / Wellness) -->
+    <!-- Fila 1: Resumen de Métricas Globales -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 bg-white h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Objetivo de Entrenamiento</span>
+                        <h3 class="fw-bold mt-2 text-dark">{{ current_user.meta }}</h3>
+                    </div>
+                    <div>
+                        <span class="badge {% if current_user.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} fs-6 mb-2">
+                            Modalidad: {{ current_user.meta }}
+                        </span>
+                        <div>
+                            <span class="badge bg-success-subtle text-success border border-success px-2 py-1">
+                                ✓ Plan Activo y en Seguimiento
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 bg-white h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Sesiones Completadas</span>
+                        <h3 class="fw-bold mt-2 text-primary">{{ total_sesiones }}</h3>
+                    </div>
+                    <p class="text-muted small mb-0">Entrenamientos registrados exitosamente en la base de datos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 bg-white h-100">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Tiempo Total Invertido</span>
+                        <h3 class="fw-bold mt-2 text-success">{{ total_minutos }} min</h3>
+                    </div>
+                    <p class="text-muted small mb-0">Calculado en el servidor para evitar pausas en el navegador.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fila 2: SECCIÓN DE EVALUACIÓN VISUAL DE METAS CON COLORES (Auditoría / Wellness) -->
     <div class="row g-4 mb-4">
-        <!-- Tarjeta 1: Meta de Peso Corporal -->
+        {% if es_meta_hipertrofia %}
+        <!-- Tarjeta 1: Meta de Peso Corporal (Para Ganar Músculo / Hipertrofia) -->
         <div class="col-lg-6">
             <div class="card h-100 shadow-sm border-{{ color_peso }} border-2 bg-white">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-0">⚖️ Meta de Peso Corporal</h5>
-                    <!-- Indicador Semafórico de Colores -->
+                    <h5 class="fw-bold text-dark mb-0">⚖️ Meta de Peso Corporal (Hipertrofia)</h5>
                     {% if color_peso == 'success' %}
                         <span class="badge bg-success fs-6 px-3 py-2 shadow-sm">
                             ✓ ¡META ALCANZADA!
@@ -62,7 +91,6 @@
                 </div>
 
                 <div class="card-body p-4 pt-2 d-flex flex-column justify-content-between">
-                    <!-- Métricas comparativas -->
                     <div class="row text-center my-3 g-2">
                         <div class="col-4">
                             <div class="p-2 border rounded bg-light">
@@ -84,7 +112,6 @@
                         </div>
                     </div>
 
-                    <!-- Barra de Progreso Dinámica -->
                     <div class="my-2">
                         <div class="d-flex justify-content-between small text-muted mb-1">
                             <span>Avance hacia el peso objetivo</span>
@@ -101,42 +128,84 @@
                         </div>
                     </div>
 
-                    <!-- Mensaje descriptivo con alerta de color -->
                     <div class="alert alert-{{ color_peso }} border mt-3 mb-0 py-2 px-3 small">
                         <strong>Estado:</strong> {{ mensaje_peso }}
-=======
-    <!-- Fila de Tarjetas Resumen / Meta (Cumpliendo Guía de Auditoría) -->
-    <div class="row g-3 mb-4">
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 bg-white h-100">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <span class="text-muted small fw-semibold text-uppercase">Meta de Entrenamiento</span>
-                        <h3 class="fw-bold mt-2 text-dark">{{ current_user.meta }}</h3>
-                    </div>
-                    <div>
-                        <!-- Indicador visual con colores exigido por la cátedra -->
-                        <span class="badge {% if current_user.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} fs-6 mb-2">
-                            Objetivo: {{ current_user.meta }}
-                        </span>
-                        <div>
-                            <span class="badge bg-success-subtle text-success border border-success px-2 py-1">
-                                ✓ Plan Activo y en Seguimiento
-                            </span>
-                        </div>
->>>>>>> origin/josep-cambios
                     </div>
                 </div>
             </div>
         </div>
-<<<<<<< HEAD
+        {% else %}
+        <!-- Tarjeta 1: Incremento de Peso en Ejercicios (Meta Principal para Ganar Fuerza) -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm border-{{ color_ejercicios }} border-2 bg-white">
+                <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">🏋️ Incremento de Peso en Ejercicios</h5>
+                        <small class="text-muted">Sobrecarga progresiva (Objetivo: Ganar Fuerza)</small>
+                    </div>
+                    {% if color_ejercicios == 'success' %}
+                        <span class="badge bg-success fs-6 px-3 py-2 shadow-sm">
+                            ✓ ¡SOBRECARGA LOGRADA!
+                        </span>
+                    {% elif color_ejercicios == 'warning' %}
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-2 shadow-sm">
+                            ⏳ EN PROGRESO
+                        </span>
+                    {% else %}
+                        <span class="badge bg-secondary fs-6 px-3 py-2 shadow-sm">
+                            📊 CARGA BASE
+                        </span>
+                    {% endif %}
+                </div>
 
-        <!-- Tarjeta 2: Meta Semanal de Entrenamientos -->
+                <div class="card-body p-4 pt-2 d-flex flex-column justify-content-between">
+                    <div class="row text-center my-3 g-2">
+                        <div class="col-6">
+                            <div class="p-2 border rounded bg-white shadow-sm border-{{ color_ejercicios }}">
+                                <span class="text-muted extra-small d-block" style="font-size: 0.75rem;">SOBRECARGA LOGRADA</span>
+                                <strong class="fs-4 text-{{ color_ejercicios }}">+{{ total_kg_ganados }} kg</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 border rounded bg-light">
+                                <span class="text-muted extra-small d-block" style="font-size: 0.75rem;">EJERCICIOS CON INCREMENTO</span>
+                                <strong class="fs-4 text-primary">{{ ejercicios_con_sobrecarga }} / {{ total_ejercicios_trackeados }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="my-2">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>Progresión de cargas en ejercicios</span>
+                            <span class="fw-bold text-{{ color_ejercicios }}">{{ progreso_ejercicios_pct }}%</span>
+                        </div>
+                        <div class="progress" style="height: 14px;">
+                            <div class="progress-bar bg-{{ color_ejercicios }} progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: {{ progreso_ejercicios_pct }}%;" 
+                                 aria-valuenow="{{ progreso_ejercicios_pct }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-{{ color_ejercicios }} border mt-3 mb-0 py-2 px-3 small">
+                        <strong>Estado:</strong> {{ mensaje_ejercicios }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tarjeta 2: Cumplimiento Semanal de la Rutina (Inferido) -->
         <div class="col-lg-6">
             <div class="card h-100 shadow-sm border-{{ color_semana }} border-2 bg-white">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-0">📅 Meta Semanal de Sesiones</h5>
-                    <!-- Indicador Semafórico de Colores -->
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">📅 Cumplimiento Semanal de la Rutina</h5>
+                        <small class="text-muted">Días inferidos de las sesiones de tu rutina</small>
+                    </div>
                     {% if color_semana == 'success' %}
                         <span class="badge bg-success fs-6 px-3 py-2 shadow-sm">
                             ✓ ¡CUMPLIDA!
@@ -144,6 +213,10 @@
                     {% elif color_semana == 'warning' %}
                         <span class="badge bg-warning text-dark fs-6 px-3 py-2 shadow-sm">
                             ⏳ EN CAMINO
+                        </span>
+                    {% elif color_semana == 'secondary' %}
+                        <span class="badge bg-secondary fs-6 px-3 py-2 shadow-sm">
+                            ℹ️ SIN RUTINA
                         </span>
                     {% else %}
                         <span class="badge bg-danger fs-6 px-3 py-2 shadow-sm">
@@ -153,7 +226,6 @@
                 </div>
 
                 <div class="card-body p-4 pt-2 d-flex flex-column justify-content-between">
-                    <!-- Métricas de adherencia -->
                     <div class="row text-center my-3 g-2">
                         <div class="col-6">
                             <div class="p-2 border rounded bg-white shadow-sm border-{{ color_semana }}">
@@ -163,16 +235,21 @@
                         </div>
                         <div class="col-6">
                             <div class="p-2 border rounded bg-light">
-                                <span class="text-muted extra-small d-block" style="font-size: 0.75rem;">META SEMANAL</span>
-                                <strong class="fs-4 text-primary">{{ dias_meta }} días</strong>
+                                <span class="text-muted extra-small d-block" style="font-size: 0.75rem;">DÍAS DE TU RUTINA</span>
+                                <strong class="fs-4 text-primary">
+                                    {% if dias_meta > 0 %}
+                                        {{ dias_meta }} días
+                                    {% else %}
+                                        Sin asignar
+                                    {% endif %}
+                                </strong>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Barra de Progreso Semanal -->
                     <div class="my-2">
                         <div class="d-flex justify-content-between small text-muted mb-1">
-                            <span>Cumplimiento de la semana en curso</span>
+                            <span>Cumplimiento de la rutina esta semana</span>
                             <span class="fw-bold text-{{ color_semana }}">{{ progreso_semana_pct }}%</span>
                         </div>
                         <div class="progress" style="height: 14px;">
@@ -186,146 +263,145 @@
                         </div>
                     </div>
 
-                    <!-- Mensaje descriptivo con alerta de color -->
                     <div class="alert alert-{{ color_semana }} border mt-3 mb-0 py-2 px-3 small">
                         <strong>Estado:</strong> {{ mensaje_semana }}
                     </div>
-=======
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 bg-white h-100">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <span class="text-muted small fw-semibold text-uppercase">Sesiones Completadas</span>
-                        <h3 class="fw-bold mt-2 text-primary">{{ total_sesiones }}</h3>
-                    </div>
-                    <span class="text-muted small">Sesiones registradas con éxito en el sistema</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm border-0 bg-white h-100">
-                <div class="card-body p-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <span class="text-muted small fw-semibold text-uppercase">Tiempo Total de Entrenamiento</span>
-                        <h3 class="fw-bold mt-2 text-success">{{ total_minutos }} min</h3>
-                    </div>
-                    <span class="text-muted small">Minutos efectivos acumulados bajo supervisión</span>
->>>>>>> origin/josep-cambios
                 </div>
             </div>
         </div>
     </div>
 
-<<<<<<< HEAD
-    <!-- SECCIÓN 2: FORMULARIO DE ACTUALIZACIÓN DE PESO Y RESUMEN GENERAL -->
+    {% if es_meta_fuerza %}
+    <!-- Fila 3 para Fuerza: TABLA DE INCREMENTO DE PESO EN EJERCICIOS (Sobrecarga Progresiva) -->
+    <div class="card shadow-sm border-0 bg-white mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">🏋️ Progresión e Incremento de Peso en Ejercicios</h5>
+                <small class="text-muted">Métrica principal para Ganar Fuerza: Sobrecarga progresiva de cargas levantadas en las sesiones.</small>
+            </div>
+            <span class="badge bg-primary fs-6">{{ total_ejercicios_trackeados }} ejercicio(s) analizado(s)</span>
+        </div>
+        <div class="card-body p-0">
+            {% if lista_progresos_ejercicios %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start ps-4">Ejercicio</th>
+                                <th>Grupo Muscular</th>
+                                <th>Carga Inicial Registrada</th>
+                                <th>Carga Máxima Actual</th>
+                                <th>Incremento de Peso (+kg)</th>
+                                <th>Estado de Sobrecarga</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ej in lista_progresos_ejercicios %}
+                                <tr>
+                                    <td class="text-start ps-4 fw-bold text-dark">{{ ej.nombre }}</td>
+                                    <td><span class="badge bg-secondary-subtle text-secondary">{{ ej.grupo_muscular }}</span></td>
+                                    <td class="text-muted">{{ ej.primera_carga }} kg</td>
+                                    <td><strong class="fs-6 text-primary">{{ ej.max_carga }} kg</strong></td>
+                                    <td>
+                                        {% if ej.delta > 0 %}
+                                            <span class="badge bg-success fs-6">+{{ ej.delta }} kg (+{{ ej.pct }}%)</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark border">0.0 kg (Carga Base)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ej.color == 'success' %}
+                                            <span class="badge bg-success-subtle text-success border border-success">✓ Incremento Logrado</span>
+                                        {% elif ej.color == 'warning' %}
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning">⏳ Carga Base</span>
+                                        {% else %}
+                                            <span class="badge bg-danger-subtle text-danger border border-danger">⚠️ Reducción</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">
+                    Aún no hay ejercicios registrados en tus sesiones para medir el incremento de cargas.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Fila 3 para Hipertrofia: PESO CORPORAL + INCREMENTO EN EJERCICIOS -->
     <div class="row g-4 mb-4">
-        <!-- Formulario para Registrar Nuevo Peso (RF 11 & CU 13) -->
         <div class="col-lg-5">
             <div class="card shadow-sm border-0 bg-white h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="fw-bold text-dark mb-0">⚖️ Registrar Nuevo Peso Corporal</h5>
+                    <small class="text-muted">Métrica 1 de Hipertrofia: Trazabilidad de masa corporal.</small>
+                </div>
                 <div class="card-body p-4">
-                    <h5 class="fw-bold text-dark mb-1">📝 Actualizar Peso Corporal</h5>
-                    <p class="text-muted small mb-3">
-                        Registra tu peso de hoy para actualizar tus métricas y comprobar si alcanzaste tu meta.
-                    </p>
-
+                    {% if form is defined and form %}
                     <form method="POST" action="{{ url_for('mi_progreso') }}">
                         {{ form.hidden_tag() }}
-                        <div class="form-floating mb-3">
-                            {{ form.nuevo_peso(class="form-control" + (" is-invalid" if form.nuevo_peso.errors else ""), id="floatingNuevoPeso", placeholder="72.5") }}
-                            {{ form.nuevo_peso.label(for="floatingNuevoPeso") }}
+                        <div class="mb-3">
+                            {{ form.nuevo_peso.label(class="form-label fw-semibold text-secondary small text-uppercase") }}
+                            <div class="input-group">
+                                {{ form.nuevo_peso(class="form-control form-control-lg", placeholder="Ej: 75.5") }}
+                                <span class="input-group-text">kg</span>
+                            </div>
                             {% for error in form.nuevo_peso.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
+                                <div class="text-danger small mt-1">{{ error }}</div>
                             {% endfor %}
                         </div>
-                        <button type="submit" class="btn btn-success w-100 fw-semibold py-2">
-                            💾 Registrar Peso Actual
-                        </button>
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary btn-lg fw-bold shadow-sm") }}
+                        </div>
                     </form>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('mi_progreso') }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary small text-uppercase">Nuevo Peso Corporal</label>
+                            <div class="input-group">
+                                <input type="number" step="0.1" name="nuevo_peso" class="form-control form-control-lg" placeholder="Ej: 75.5" required>
+                                <span class="input-group-text">kg</span>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">Actualizar Peso</button>
+                        </div>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- Resumen General del Perfil -->
         <div class="col-lg-7">
             <div class="card shadow-sm border-0 bg-white h-100">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold text-dark mb-3">📊 Resumen de tu Plan</h5>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <div class="p-3 border rounded bg-light">
-                                <span class="text-muted small d-block">Objetivo General</span>
-                                <strong class="text-dark fs-6">{{ cliente.meta }}</strong>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="p-3 border rounded bg-light">
-                                <span class="text-muted small d-block">Nivel de Experiencia</span>
-                                <strong class="text-dark fs-6">{{ cliente.nivel_experiencia }}</strong>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="p-3 border rounded bg-light">
-                                <span class="text-muted small d-block">Rutina Asignada</span>
-                                <strong class="text-dark fs-6">
-                                    {% if cliente.rutina_asignada %}
-                                        {{ cliente.rutina_asignada.nombre }}
-                                    {% else %}
-                                        <span class="text-warning">En espera de asignación</span>
-                                    {% endif %}
-                                </strong>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="p-3 border rounded bg-light">
-                                <span class="text-muted small d-block">Total Sesiones Completadas</span>
-                                <strong class="text-success fs-6">{{ total_entrenamientos }} entrenamientos</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 3: HISTORIAL DE REGISTROS DE PESO CORPORAL (Trazabilidad RF 11 & RF 15) -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 bg-white">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark mb-0">📈 Historial de Registros de Peso</h5>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">📋 Historial de Pesajes</h5>
+                        <small class="text-muted">Evolución de peso para ganancia muscular.</small>
+                    </div>
                     <span class="badge bg-secondary">{{ historial_pesos|length }} registros</span>
                 </div>
                 <div class="card-body p-0">
                     {% if historial_pesos %}
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
+                        <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                            <table class="table table-hover table-striped align-middle mb-0 text-center">
+                                <thead class="table-light sticky-top">
                                     <tr>
-                                        <th style="width: 25%;">Fecha</th>
-                                        <th style="width: 25%;">Peso Registrado</th>
-                                        <th style="width: 25%;">Diferencia vs Inicial ({{ peso_inicial }} kg)</th>
-                                        <th style="width: 25%;">Diferencia vs Meta ({{ peso_objetivo }} kg)</th>
+                                        <th>Fecha</th>
+                                        <th>Peso Registrado</th>
+                                        <th>Diferencia con Meta</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for r in historial_pesos %}
-                                        {% set dif_inicial = r.peso - peso_inicial %}
-                                        {% set dif_meta = r.peso - peso_objetivo %}
+                                    {% for reg in historial_pesos %}
+                                        {% set dif_meta = reg.peso - peso_objetivo %}
                                         <tr>
-                                            <td class="fw-semibold text-muted">
-                                                📅 {{ r.fecha.strftime('%d/%m/%Y') }}
-                                            </td>
-                                            <td class="fw-bold fs-6 text-dark">
-                                                {{ r.peso }} kg
-                                            </td>
+                                            <td class="text-muted small">{{ reg.fecha.strftime('%d/%m/%Y') }}</td>
                                             <td>
-                                                {% if dif_inicial > 0 %}
-                                                    <span class="badge bg-info text-dark">+{{ dif_inicial|round(1) }} kg</span>
-                                                {% elif dif_inicial < 0 %}
-                                                    <span class="badge bg-primary">{{ dif_inicial|round(1) }} kg</span>
-                                                {% else %}
-                                                    <span class="badge bg-light text-dark border">Punto de partida</span>
-                                                {% endif %}
+                                                <strong class="fs-6">{{ reg.peso }} kg</strong>
                                             </td>
                                             <td>
                                                 {% if dif_meta|abs <= 0.2 %}
@@ -348,8 +424,66 @@
                     {% endif %}
                 </div>
             </div>
-=======
-    <!-- Sección: Notas y Recomendaciones del Entrenador e IA -->
+        </div>
+    </div>
+
+    <!-- Métrica 2 de Hipertrofia: TABLA DE INCREMENTO DE PESO EN EJERCICIOS -->
+    <div class="card shadow-sm border-0 bg-white mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">🏋️ Incremento de Peso en Ejercicios (Sobrecarga para Músculo)</h5>
+                <small class="text-muted">Métrica 2 de Hipertrofia: Tensión mecánica progresiva en las series.</small>
+            </div>
+            <span class="badge bg-primary">{{ total_ejercicios_trackeados }} ejercicio(s)</span>
+        </div>
+        <div class="card-body p-0">
+            {% if lista_progresos_ejercicios %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-start ps-4">Ejercicio</th>
+                                <th>Carga Inicial</th>
+                                <th>Carga Máxima Lograda</th>
+                                <th>Incremento (+kg)</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ej in lista_progresos_ejercicios %}
+                                <tr>
+                                    <td class="text-start ps-4 fw-bold text-dark">{{ ej.nombre }}</td>
+                                    <td class="text-muted">{{ ej.primera_carga }} kg</td>
+                                    <td><strong class="fs-6 text-primary">{{ ej.max_carga }} kg</strong></td>
+                                    <td>
+                                        {% if ej.delta > 0 %}
+                                            <span class="badge bg-success">+{{ ej.delta }} kg (+{{ ej.pct }}%)</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark border">Carga base</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ej.delta > 0 %}
+                                            <span class="badge bg-success-subtle text-success">✓ En sobrecarga</span>
+                                        {% else %}
+                                            <span class="badge bg-warning-subtle text-warning">⏳ Adaptación</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">
+                    Aún no hay ejercicios registrados en tus sesiones para medir la sobrecarga de cargas.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Fila 4: Recomendaciones IA -->
     <div class="card shadow-sm border-0 bg-white mb-4">
         <div class="card-header bg-light py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div class="d-flex align-items-center gap-2">
@@ -411,7 +545,7 @@
         </div>
     </div>
 
-    <!-- Sección: Historial de Entrenamientos Recientes (CU16) -->
+    <!-- Fila 5: Resumen Entrenamientos -->
     <div class="card shadow-sm border-0 bg-white">
         <div class="card-header bg-light py-3 border-bottom d-flex justify-content-between align-items-center">
             <h5 class="fw-bold text-dark mb-0">🏋️ Resumen de Entrenamientos Registrados</h5>
@@ -454,12 +588,7 @@
                     </table>
                 </div>
             {% endif %}
->>>>>>> origin/josep-cambios
         </div>
     </div>
 </div>
 {% endblock %}
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/josep-cambios

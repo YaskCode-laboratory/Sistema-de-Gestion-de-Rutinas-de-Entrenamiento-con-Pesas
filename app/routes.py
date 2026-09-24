@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, session
+from flask import render_template, flash, redirect, url_for, session, request
 from app import app
 from app.forms import LoginForm
 from app.forms import SignupForm
@@ -13,12 +13,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app.utils import role_required, registrar_log
 import sqlalchemy as sa
 from app import db
-<<<<<<< HEAD
-from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie, RegistroPesoCorporal 
-=======
-from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie, Recomendacion 
->>>>>>> origin/josep-cambios
-from flask import request
+from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie, RegistroPesoCorporal, Recomendacion
 from urllib.parse import urlsplit
 from datetime import date, datetime, timedelta
 
@@ -494,8 +489,14 @@ def mi_progreso():
             progreso_peso_pct = 0.0
             mensaje_peso = f"Meta no alcanzada aún. Tu peso actual ({peso_actual} kg) está por encima de tu punto de inicio ({peso_inicial} kg)."
 
-    # 3. Evaluación de la Meta Semanal de Entrenamientos
-    dias_meta = cliente.dias_semana_meta or 4
+    # 3. Evaluación de la Meta Semanal de Entrenamientos (inferida de las sesiones de la rutina)
+    if cliente.rutina_asignada and cliente.rutina_asignada.sesiones:
+        dias_meta = len(cliente.rutina_asignada.sesiones)
+        nombre_rutina = cliente.rutina_asignada.nombre
+    else:
+        dias_meta = 0
+        nombre_rutina = None
+
     inicio_semana = date.today() - timedelta(days=date.today().weekday())
     registros_semana = db.session.scalars(
         sa.select(RegistroSesionEntrenamiento).where(
@@ -505,28 +506,125 @@ def mi_progreso():
     ).all()
     sesiones_completadas_semana = len(registros_semana)
 
-    if sesiones_completadas_semana >= dias_meta:
-        estado_semana = 'alcanzada'
-        color_semana = 'success'
-        mensaje_semana = f"¡Meta semanal cumplida! Completaste {sesiones_completadas_semana} de {dias_meta} sesiones planeadas."
-        progreso_semana_pct = 100.0
-    elif sesiones_completadas_semana > 0:
-        estado_semana = 'en_progreso'
-        color_semana = 'warning'
-        progreso_semana_pct = min(99.0, round((sesiones_completadas_semana / dias_meta) * 100, 1))
-        mensaje_semana = f"En progreso: Llevas {sesiones_completadas_semana} de {dias_meta} sesiones esta semana."
+    if dias_meta > 0:
+        if sesiones_completadas_semana >= dias_meta:
+            estado_semana = 'alcanzada'
+            color_semana = 'success'
+            mensaje_semana = f"¡Plan semanal cumplido! Has completado {sesiones_completadas_semana} de {dias_meta} sesiones de tu rutina '{nombre_rutina}'."
+            progreso_semana_pct = 100.0
+        elif sesiones_completadas_semana > 0:
+            estado_semana = 'en_progreso'
+            color_semana = 'warning'
+            progreso_semana_pct = min(99.0, round((sesiones_completadas_semana / dias_meta) * 100, 1))
+            mensaje_semana = f"En progreso: Llevas {sesiones_completadas_semana} de {dias_meta} sesiones de tu rutina '{nombre_rutina}' esta semana."
+        else:
+            estado_semana = 'no_alcanzada'
+            color_semana = 'danger'
+            progreso_semana_pct = 0.0
+            mensaje_semana = f"Aún no has registrado sesiones esta semana (Rutina '{nombre_rutina}': {dias_meta} días)."
     else:
-        estado_semana = 'no_alcanzada'
-        color_semana = 'danger'
+        estado_semana = 'en_progreso'
+        color_semana = 'secondary'
+        mensaje_semana = "Aún no tienes una rutina asignada para calcular los días de entrenamiento semanal."
         progreso_semana_pct = 0.0
-        mensaje_semana = f"Aún no has registrado sesiones esta semana (Meta: {dias_meta} días)."
 
-    # 4. Total general de entrenamientos
-    total_entrenamientos = db.session.scalar(
-        sa.select(sa.func.count(RegistroSesionEntrenamiento.id))
+    # 4. Evaluación de la Meta según Modalidad (Fuerza vs Hipertrofia)
+    es_meta_fuerza = (cliente.meta or '').lower() == 'fuerza'
+    es_meta_hipertrofia = (cliente.meta or '').lower() == 'hipertrofia'
+
+    # Calcular incremento y sobrecarga progresiva en los ejercicios
+    entrenamientos_cronologicos = db.session.scalars(
+        sa.select(RegistroSesionEntrenamiento)
         .where(RegistroSesionEntrenamiento.cliente_id == cliente.id)
-    ) or 0
+        .order_by(RegistroSesionEntrenamiento.fecha.asc(), RegistroSesionEntrenamiento.id.asc())
+    ).all()
 
+    progreso_ejercicios = {}
+    for s in entrenamientos_cronologicos:
+        for reg_ej in s.registros_ejercicios:
+            nombre = reg_ej.ejercicio.nombre
+            pesos_sesion = [sr.peso_usado for sr in reg_ej.series if sr.peso_usado is not None]
+            if not pesos_sesion:
+                continue
+            max_sesion = max(pesos_sesion)
+            if nombre not in progreso_ejercicios:
+                progreso_ejercicios[nombre] = {
+                    'nombre': nombre,
+                    'grupo_muscular': reg_ej.ejercicio.grupo_muscular or 'General',
+                    'primera_carga': max_sesion,
+                    'max_carga': max_sesion,
+                    'ultima_carga': max_sesion,
+                    'primera_fecha': s.fecha,
+                    'ultima_fecha': s.fecha,
+                    'total_series': len(reg_ej.series)
+                }
+            else:
+                if max_sesion > progreso_ejercicios[nombre]['max_carga']:
+                    progreso_ejercicios[nombre]['max_carga'] = max_sesion
+                progreso_ejercicios[nombre]['ultima_carga'] = max_sesion
+                progreso_ejercicios[nombre]['ultima_fecha'] = s.fecha
+                progreso_ejercicios[nombre]['total_series'] += len(reg_ej.series)
+
+    lista_progresos_ejercicios = []
+    for ej, info in progreso_ejercicios.items():
+        delta = round(info['max_carga'] - info['primera_carga'], 1)
+        pct = round((delta / info['primera_carga'] * 100), 1) if info['primera_carga'] > 0 else 0.0
+        info['delta'] = delta
+        info['pct'] = pct
+        if delta > 0:
+            info['color'] = 'success'
+            info['estado'] = f"+{delta} kg (+{pct}%)"
+        elif delta == 0:
+            info['color'] = 'warning'
+            info['estado'] = "Carga base"
+        else:
+            info['color'] = 'danger'
+            info['estado'] = f"{delta} kg"
+        lista_progresos_ejercicios.append(info)
+
+    total_ejercicios_trackeados = len(lista_progresos_ejercicios)
+    ejercicios_con_sobrecarga = sum(1 for e in lista_progresos_ejercicios if e['delta'] > 0)
+    total_kg_ganados = round(sum(e['delta'] for e in lista_progresos_ejercicios if e['delta'] > 0), 1)
+
+    if total_ejercicios_trackeados > 0:
+        if ejercicios_con_sobrecarga > 0:
+            progreso_ejercicios_pct = round((ejercicios_con_sobrecarga / total_ejercicios_trackeados) * 100, 1)
+            if ejercicios_con_sobrecarga == total_ejercicios_trackeados:
+                estado_ejercicios = 'alcanzada'
+                color_ejercicios = 'success'
+                mensaje_ejercicios = f"¡Sobrecarga progresiva óptima! Has incrementado peso en todos tus ejercicios (+{total_kg_ganados} kg en total)."
+            else:
+                estado_ejercicios = 'en_progreso'
+                color_ejercicios = 'warning'
+                mensaje_ejercicios = f"En progreso: Has incrementado carga en {ejercicios_con_sobrecarga} de {total_ejercicios_trackeados} ejercicios (+{total_kg_ganados} kg ganados)."
+        else:
+            progreso_ejercicios_pct = 50.0
+            estado_ejercicios = 'en_progreso'
+            color_ejercicios = 'warning'
+            mensaje_ejercicios = f"Cargas base registradas en {total_ejercicios_trackeados} ejercicio(s). En tu próxima sesión busca la sobrecarga progresiva (+1.25 kg a +2.5 kg)."
+    else:
+        progreso_ejercicios_pct = 0.0
+        estado_ejercicios = 'no_alcanzada'
+        color_ejercicios = 'secondary'
+        mensaje_ejercicios = "Aún no has registrado sesiones para medir la sobrecarga de peso en los ejercicios."
+
+    # 5. Total general de entrenamientos y recomendación única (IA)
+    entrenamientos = db.session.scalars(
+        sa.select(RegistroSesionEntrenamiento)
+        .where(RegistroSesionEntrenamiento.cliente_id == cliente.id)
+        .order_by(RegistroSesionEntrenamiento.fecha.desc())
+    ).all()
+
+    total_sesiones = len(entrenamientos)
+    total_minutos = sum(e.duracion_minutos for e in entrenamientos)
+
+    recomendacion = db.session.scalar(
+        sa.select(Recomendacion)
+        .where(Recomendacion.cliente_id == cliente.id)
+        .order_by(Recomendacion.fecha.desc())
+    )
+
+    registrar_log('Consulta: Mi Progreso y Metas')
     return render_template(
         'cliente/progreso.html',
         form=form,
@@ -545,8 +643,22 @@ def mi_progreso():
         color_semana=color_semana,
         mensaje_semana=mensaje_semana,
         progreso_semana_pct=progreso_semana_pct,
-        total_entrenamientos=total_entrenamientos,
-        historial_pesos=historial_pesos
+        total_sesiones=total_sesiones,
+        total_minutos=total_minutos,
+        historial_pesos=historial_pesos,
+        recomendacion=recomendacion,
+        recomendaciones=[recomendacion] if recomendacion else [],
+        entrenamientos=entrenamientos,
+        es_meta_fuerza=es_meta_fuerza,
+        es_meta_hipertrofia=es_meta_hipertrofia,
+        lista_progresos_ejercicios=lista_progresos_ejercicios,
+        total_ejercicios_trackeados=total_ejercicios_trackeados,
+        ejercicios_con_sobrecarga=ejercicios_con_sobrecarga,
+        total_kg_ganados=total_kg_ganados,
+        estado_ejercicios=estado_ejercicios,
+        color_ejercicios=color_ejercicios,
+        mensaje_ejercicios=mensaje_ejercicios,
+        progreso_ejercicios_pct=progreso_ejercicios_pct
     )
 
 @app.route('/cliente/entrenamiento-hoy')
@@ -709,31 +821,7 @@ def ver_entrenamientos_cliente(cliente_id):
 @app.route('/cliente/progreso')
 @role_required('cliente')
 def progreso():
-    # 1. Recomendaciones recibidas de su entrenador
-    recomendaciones = db.session.scalars(
-        sa.select(Recomendacion)
-        .where(Recomendacion.cliente_id == current_user.id)
-        .order_by(Recomendacion.fecha.desc())
-    ).all()
-
-    # 2. Historial de entrenamientos para métricas de progreso (CU16)
-    entrenamientos = db.session.scalars(
-        sa.select(RegistroSesionEntrenamiento)
-        .where(RegistroSesionEntrenamiento.cliente_id == current_user.id)
-        .order_by(RegistroSesionEntrenamiento.fecha.desc())
-    ).all()
-
-    total_sesiones = len(entrenamientos)
-    total_minutos = sum(e.duracion_minutos for e in entrenamientos)
-
-    registrar_log('Consulta: Mi Progreso')
-    return render_template(
-        'cliente/progreso.html',
-        recomendaciones=recomendaciones,
-        entrenamientos=entrenamientos,
-        total_sesiones=total_sesiones,
-        total_minutos=total_minutos
-    )
+    return redirect(url_for('mi_progreso'))
 
 @app.route('/cliente/recomendaciones/<int:rec_id>/marcar-leida', methods=['POST'])
 @role_required('cliente')
@@ -743,7 +831,7 @@ def marcar_recomendacion_leida(rec_id):
         rec.leido = True
         db.session.commit()
         flash('Recomendación marcada como leída.', 'info')
-    return redirect(url_for('progreso'))
+    return redirect(url_for('mi_progreso'))
 
 @app.route('/cliente/generar-recomendacion-ia', methods=['POST'])
 @role_required('cliente')
@@ -752,12 +840,16 @@ def generar_recomendacion_ia_cliente():
     titulo, mensaje = generar_recomendacion_ia(current_user.id)
     if not titulo:
         flash(mensaje, 'warning')
-        return redirect(url_for('progreso'))
+        return redirect(url_for('mi_progreso'))
 
+    # Reemplazar recomendaciones previas: solo debe existir una recomendación activa por cliente
+    db.session.execute(
+        sa.delete(Recomendacion).where(Recomendacion.cliente_id == current_user.id)
+    )
     nueva_rec = Recomendacion(
         cliente_id=current_user.id,
         entrenador_id=current_user.entrenador_id,
-        titulo=f"🤖 {titulo}",
+        titulo=f"🤖 {titulo}" if not titulo.startswith("🤖") else titulo,
         mensaje=mensaje,
         fecha=datetime.now(),
         leido=False
@@ -765,8 +857,8 @@ def generar_recomendacion_ia_cliente():
     db.session.add(nueva_rec)
     db.session.commit()
     registrar_log(f'Registro: Recomendación IA generada para {current_user.nombre_usuario}')
-    flash('¡La Inteligencia Artificial ha analizado tus entrenamientos y generado nuevas recomendaciones y proyecciones!', 'success')
-    return redirect(url_for('progreso'))
+    flash('¡La Inteligencia Artificial ha analizado tus entrenamientos y actualizado tu recomendación!', 'success')
+    return redirect(url_for('mi_progreso'))
 
 @app.route('/trainer/clientes/<int:cliente_id>/recomendaciones/generar-ia', methods=['POST'])
 @role_required('entrenador')
@@ -782,10 +874,14 @@ def generar_recomendacion_ia_trainer(cliente_id):
         flash(mensaje, 'warning')
         return redirect(url_for('ver_entrenamientos_cliente', cliente_id=cliente.id))
 
+    # Reemplazar recomendaciones previas: solo debe existir una recomendación activa por cliente
+    db.session.execute(
+        sa.delete(Recomendacion).where(Recomendacion.cliente_id == cliente.id)
+    )
     nueva_rec = Recomendacion(
         cliente_id=cliente.id,
         entrenador_id=current_user.id,
-        titulo=f"🤖 {titulo} (Supervisado por Entrenador)",
+        titulo=f"🤖 {titulo} (Supervisado por Entrenador)" if not titulo.startswith("🤖") else f"{titulo} (Supervisado)",
         mensaje=mensaje,
         fecha=datetime.now(),
         leido=False
@@ -793,5 +889,5 @@ def generar_recomendacion_ia_trainer(cliente_id):
     db.session.add(nueva_rec)
     db.session.commit()
     registrar_log(f'Registro: Recomendación IA supervisada para {cliente.nombre_usuario}')
-    flash(f'¡Análisis de IA generado y enviado como recomendación a {cliente.nombre_usuario}!', 'success')
+    flash(f'¡Análisis de IA generado y actualizado como recomendación única para {cliente.nombre_usuario}!', 'success')
     return redirect(url_for('ver_entrenamientos_cliente', cliente_id=cliente.id))

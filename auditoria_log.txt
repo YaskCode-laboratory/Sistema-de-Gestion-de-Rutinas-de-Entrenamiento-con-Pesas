@@ -155,3 +155,211 @@
 2026-09-24 02:00:12, maria, Login
 2026-09-24 02:00:12, maria, Consulta: Mi Perfil
 2026-09-24 09:22:39, Maria, Consulta: Mi Progreso
+2026-09-24 09:39:42, Maria, Consulta: Mi Progreso
+2026-09-24 09:42:49, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:42:55, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:43:07, jose, Consulta: Mis Clientes
+2026-09-24 09:48:29, maria, Consulta: Mi Perfil
+2026-09-24 09:48:32, maria, Consulta: Mi Progreso
+2026-09-24 09:48:33, maria, Consulta: Mi Perfil
+2026-09-24 09:48:34, maria, Consulta: Mi Rutina
+2026-09-24 09:48:36, maria, Consulta: Mi Rutina
+2026-09-24 09:48:40, maria, Consulta: Mi Rutina
+2026-09-24 09:48:40, maria, Consulta: Mi Perfil
+2026-09-24 09:48:41, maria, Consulta: Mi Rutina
+2026-09-24 09:49:06, maria, Consulta: Mi Progreso
+2026-09-24 09:52:31, maria, Consulta: Mi Perfil
+2026-09-24 09:52:34, maria, Consulta: Mi Perfil
+2026-09-24 09:52:35, maria, Consulta: Mi Rutina
+2026-09-24 09:52:37, maria, Consulta: Mi Perfil
+2026-09-24 09:52:38, maria, Consulta: Mi Rutina
+2026-09-24 09:52:40, maria, Consulta: Mi Perfil
+2026-09-24 09:52:40, maria, Consulta: Mi Rutina
+2026-09-24 09:52:56, maria, Registro: Recomendación IA generada para maria
+2026-09-24 09:52:56, maria, Consulta: Mi Progreso
+2026-09-24 09:53:13, maria, Registro: Recomendación IA generada para maria
+2026-09-24 09:53:13, maria, Consulta: Mi Progreso
+2026-09-24 09:54:20, maria, Consulta: Mi Rutina
+2026-09-24 09:54:24, maria, Consulta: Mi Rutina
+2026-09-24 09:54:25, maria, Consulta: Mi Perfil
+2026-09-24 09:54:26, maria, Consulta: Mi Rutina
+2026-09-24 09:54:28, maria, Consulta: Entrenamiento del Día
+2026-09-24 09:54:36, maria, Consulta: Mi Perfil
+2026-09-24 09:54:39, maria, Logout
+2026-09-24 09:54:42, jose, Login
+2026-09-24 09:54:42, jose, Consulta: Mis Clientes
+2026-09-24 09:54:43, jose, Consulta: Mis Clientes
+2026-09-24 09:54:44, jose, Consulta: Mis Rutinas
+2026-09-24 09:54:45, jose, Consulta: Librería de Ejercicios
+2026-09-24 09:54:45, jose, Consulta: Mis Rutinas
+2026-09-24 09:54:47, jose, Consulta: Detalle Rutina "Power 1"
+2026-09-24 09:54:48, jose, Consulta: Mis Clientes
+2026-09-24 09:54:49, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-24 09:55:02, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:55:02, Maria, Registro: Recomendación IA generada para Maria
+2026-09-24 09:55:02, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:55:09, jose, Registro: Recomendación IA supervisada para maria
+2026-09-24 09:55:09, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-24 09:55:19, jose, Logout
+2026-09-24 09:55:23, maria, Login
+2026-09-24 09:55:23, maria, Consulta: Mi Perfil
+2026-09-24 09:55:24, maria, Consulta: Mi Rutina
+2026-09-24 09:55:26, maria, Registro: Recomendación IA generada para maria
+2026-09-24 09:55:26, maria, Consulta: Mi Progreso
+2026-09-24 09:55:58, maria, Consulta: Mi Perfil
+2026-09-24 09:56:03, maria, Registro: Recomendación IA generada para maria
+2026-09-24 09:56:03, maria, Consulta: Mi Progreso
+2026-09-24 09:57:40, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:57:40, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:57:40, Maria, Registro: Recomendación IA generada para Maria
+2026-09-24 09:57:40, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 09:58:42, maria, Consulta: Mi Progreso
+2026-09-24 09:58:43, maria, Consulta: Mi Progreso
+2026-09-24 09:58:45, maria, Registro: Recomendación IA generada para maria
+2026-09-24 09:58:45, maria, Consulta: Mi Progreso
+2026-09-24 09:59:42, maria, Consulta: Mi Rutina
+2026-09-24 09:59:50, maria, Consulta: Mi Rutina
+2026-09-24 09:59:50, maria, Consulta: Mi Perfil
+2026-09-24 10:00:09, maria, Consulta: Mi Rutina
+2026-09-24 10:00:09, maria, Consulta: Entrenamiento del Día
+2026-09-24 10:00:12, maria, Consulta: Mi Rutina
+2026-09-24 10:00:13, maria, Consulta: Mi Perfil
+2026-09-24 10:00:25, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:00:25, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:00:25, Maria, Registro: Recomendación IA generada para Maria
+2026-09-24 10:00:25, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:15, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:17, maria, Registro: Recomendación IA generada para maria
+2026-09-24 10:01:17, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:25, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:27, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:30, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:35, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:38, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:40, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:01:43, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:08:10, maria, Consulta: Mi Rutina
+2026-09-24 10:08:11, maria, Consulta: Mi Perfil
+2026-09-24 10:08:11, maria, Consulta: Mi Rutina
+2026-09-24 10:08:12, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:08:18, maria, Consulta: Mi Rutina
+2026-09-24 10:08:22, maria, Consulta: Entrenamiento del Día
+2026-09-24 10:08:28, maria, Consulta: Mi Perfil
+2026-09-24 10:08:42, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:10:47, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:10:47, Maria, Consulta: Mi Perfil
+2026-09-24 10:12:48, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:12:49, maria, Consulta: Mi Perfil
+2026-09-24 10:12:49, maria, Consulta: Mi Rutina
+2026-09-24 10:12:50, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:13:13, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:13:14, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:13:14, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:13:17, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:13:17, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:13:20, maria, Consulta: Mi Perfil
+2026-09-24 10:13:21, maria, Consulta: Mi Perfil
+2026-09-24 10:13:21, maria, Consulta: Mi Perfil
+2026-09-24 10:13:34, maria, Consulta: Mi Perfil
+2026-09-24 10:13:36, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:14:21, maria, Consulta: Mi Perfil
+2026-09-24 10:14:30, maria, Logout
+2026-09-24 10:16:23, Maria, Consulta: Mi Perfil
+2026-09-24 10:16:23, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:17:54, maria, Login
+2026-09-24 10:17:54, maria, Consulta: Mi Perfil
+2026-09-24 10:18:09, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:18:15, maria, Consulta: Mi Rutina
+2026-09-24 10:18:16, maria, Consulta: Mi Perfil
+2026-09-24 10:18:19, maria, Consulta: Mi Rutina
+2026-09-24 10:18:21, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:19:14, maria, Consulta: Mi Rutina
+2026-09-24 10:19:16, maria, Consulta: Entrenamiento del Día
+2026-09-24 10:19:18, maria, Consulta: Mi Perfil
+2026-09-24 10:19:19, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:19:26, Maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:19:45, maria, Logout
+2026-09-24 10:19:49, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:20:15, paula, Registro: Cliente
+2026-09-24 10:20:23, paula, Login
+2026-09-24 10:20:23, paula, Consulta: Mi Perfil
+2026-09-24 10:20:27, paula, Consulta: Mi Rutina
+2026-09-24 10:20:28, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:20:49, paula, Consulta: Mi Rutina
+2026-09-24 10:20:49, paula, Consulta: Mi Perfil
+2026-09-24 10:20:50, paula, Consulta: Mi Rutina
+2026-09-24 10:20:51, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:21:09, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:21:10, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:22:46, paula, Logout
+2026-09-24 10:22:49, maria, Login
+2026-09-24 10:22:49, maria, Consulta: Mi Perfil
+2026-09-24 10:22:51, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:22:54, maria, Registro: Recomendación IA generada para maria
+2026-09-24 10:22:54, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:24:51, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:24:51, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:25:06, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:25:17, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:25:23, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:26:32, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:26:32, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:26:40, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:26:49, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:26:54, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:26:55, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:06, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:06, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:11, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:11, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:15, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:15, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:25, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:25, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:38, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:38, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:53, maria, Registro: Recomendación IA generada para maria
+2026-09-24 10:27:53, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:27:53, miguel, Registro: Recomendación IA generada para miguel
+2026-09-24 10:27:53, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:28:55, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:28:55, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:41:32, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:41:32, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:43:08, maria, Login
+2026-09-24 10:43:08, maria, Consulta: Mi Perfil
+2026-09-24 10:43:12, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:43:35, maria, Registro: Recomendación IA generada para maria
+2026-09-24 10:43:35, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:43:40, maria, Logout
+2026-09-24 10:43:46, paula, Login
+2026-09-24 10:43:46, paula, Consulta: Mi Perfil
+2026-09-24 10:43:48, paula, Consulta: Mi Rutina
+2026-09-24 10:43:49, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:44:09, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:44:11, paula, Consulta: Mi Rutina
+2026-09-24 10:44:11, paula, Consulta: Mi Perfil
+2026-09-24 10:44:12, paula, Consulta: Mi Rutina
+2026-09-24 10:44:12, paula, Consulta: Mi Perfil
+2026-09-24 10:44:27, paula, Consulta: Mi Progreso y Metas
+2026-09-24 10:44:44, paula, Logout
+2026-09-24 10:48:45, jose, Login
+2026-09-24 10:48:45, jose, Consulta: Mis Clientes
+2026-09-24 10:48:47, jose, Consulta: Mis Clientes
+2026-09-24 10:48:48, jose, Consulta: Mis Clientes
+2026-09-24 10:48:49, jose, Consulta: Mis Rutinas
+2026-09-24 10:48:50, jose, Consulta: Mis Clientes
+2026-09-24 10:48:51, jose, Consulta: Mis Rutinas
+2026-09-24 10:48:53, jose, Consulta: Librería de Ejercicios
+2026-09-24 10:48:55, jose, Consulta: Mis Rutinas
+2026-09-24 10:49:07, jose, Consulta: Mis Rutinas
+2026-09-24 10:49:08, jose, Consulta: Mis Clientes
+2026-09-24 10:49:08, jose, Consulta: Mis Rutinas
+2026-09-24 10:49:09, jose, Consulta: Mis Clientes
+2026-09-24 10:49:10, jose, Consulta: Librería de Ejercicios
+2026-09-24 10:49:15, jose, Consulta: Mis Rutinas
+2026-09-24 10:49:17, jose, Consulta: Mis Clientes
+2026-09-24 10:49:19, jose, Consulta: Mis Rutinas
+2026-09-24 10:49:20, jose, Consulta: Librería de Ejercicios
+2026-09-24 10:49:25, jose, Consulta: Mis Rutinas
+2026-09-24 10:49:27, jose, Consulta: Mis Clientes
