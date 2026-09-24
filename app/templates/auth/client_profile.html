@@ -11,9 +11,21 @@
     </div>
 
     <div class="form-floating mb-2">
-        {{ form.objetivo(class="form-select" + (" is-invalid" if form.meta.errors else ""), id="floatingMeta") }}
+        {{ form.peso_objetivo(class="form-control" + (" is-invalid" if form.peso_objetivo.errors else ""), id="floatingPesoObjetivo", placeholder="70.0") }}
+        {{ form.peso_objetivo.label(for="floatingPesoObjetivo") }}
+        {% for error in form.peso_objetivo.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-floating mb-2">
+        {{ form.objetivo(class="form-select" + (" is-invalid" if form.objetivo.errors else ""), id="floatingMeta") }}
         {{ form.objetivo.label(for="floatingMeta") }}
         {% for error in form.objetivo.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+    </div>
+
+    <div class="form-floating mb-2">
+        {{ form.dias_semana_meta(class="form-select" + (" is-invalid" if form.dias_semana_meta.errors else ""), id="floatingDiasMeta") }}
+        {{ form.dias_semana_meta.label(for="floatingDiasMeta") }}
+        {% for error in form.dias_semana_meta.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
     </div>
 
     <div class="form-floating mb-2">

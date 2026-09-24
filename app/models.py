@@ -67,12 +67,15 @@ class Cliente(Usuario):
 
     #Fields del diagrama de clases
     peso: so.Mapped[float] = so.mapped_column(sa.Float)
+    peso_objetivo: so.Mapped[Optional[float]] = so.mapped_column(sa.Float, nullable=True) # Parámetro META cuantitativo
+    dias_semana_meta: so.Mapped[Optional[int]] = so.mapped_column(sa.Integer, nullable=True, default=4) # Meta de días de entrenamiento por semana
     meta: so.Mapped[str] = so.mapped_column(sa.String(12)) # Ganar Fuerza o Ganar Musculo (Hipertrofia)
     nivel_experiencia: so.Mapped[str] = so.mapped_column(sa.String(12)) # Principiante - Intermedio - Avanzado
 
     # Relaciones
     entrenador: so.Mapped["Entrenador"] = so.relationship(back_populates="clientes", foreign_keys="[Cliente.entrenador_id]") # Relacion 1-1
     rutina_asignada: so.Mapped[Optional['Rutina']] = so.relationship(foreign_keys='[Cliente.rutina_id]')
+    historial_peso: so.Mapped[List['RegistroPesoCorporal']] = so.relationship(back_populates='cliente', cascade='all, delete-orphan')
 
     # Configuracion de Herencia JTI (Joined Table Inheritance)
     __mapper_args__ = {
@@ -199,7 +202,7 @@ class RegistroPesoCorporal(db.Model):
     peso: so.Mapped[float] = so.mapped_column(sa.Float)
 
     #Relaciones
-    cliente: so.Mapped['Cliente'] = so.relationship()
+    cliente: so.Mapped['Cliente'] = so.relationship(back_populates='historial_peso')
 
 
 @login.user_loader

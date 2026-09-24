@@ -34,10 +34,16 @@ class TrainerCodeForm(FlaskForm):
             raise ValidationError("Código inválido. No se encontró ningún entrenador asociado al codigo")
 
 class ClientProfileForm(FlaskForm):
-    peso = FloatField('Peso actual (kg)', validators=[DataRequired(), NumberRange(min=30.0, max=300.0, message="Ingrese un peso válido.")])
+    peso = FloatField('Peso actual (kg)', validators=[DataRequired(message="Por favor ingrese su peso actual."), NumberRange(min=30.0, max=300.0, message="Ingrese un peso válido.")])
+    peso_objetivo = FloatField('Peso objetivo / Meta (kg)', validators=[DataRequired(message="Indica tu peso meta a alcanzar."), NumberRange(min=30.0, max=300.0, message="Ingrese un peso objetivo válido.")])
     objetivo = SelectField('Meta de entrenamiento', choices=[('Hipertrofia', 'Ganar Músculo (Hipertrofia)'), ('Fuerza', 'Ganar Fuerza')], validators=[DataRequired()])
+    dias_semana_meta = SelectField('Meta de Días de Entrenamiento Semanales', choices=[('2', '2 días por semana'), ('3', '3 días por semana'), ('4', '4 días por semana'), ('5', '5 días por semana'), ('6', '6 días por semana')], default='4', validators=[DataRequired()])
     nivel_experiencia = SelectField('Nivel de Experiencia', choices=[('Principiante', 'Principiante'), ('Intermedio', 'Intermedio'), ('Avanzado', 'Avanzado')], validators=[DataRequired()])
     submit = SubmitField('Finalizar Registro')
+
+class ActualizarPesoForm(FlaskForm):
+    nuevo_peso = FloatField('Nuevo Peso Corporal (kg)', validators=[DataRequired(message="Por favor ingrese su nuevo peso."), NumberRange(min=30.0, max=300.0, message="Ingrese un peso válido.")])
+    submit = SubmitField('Registrar Peso')
 
 class ExerciseForm(FlaskForm):
     nombre = StringField('Nombre del Ejercicio', validators=[DataRequired(message="Por favor ingrese un nombre")])

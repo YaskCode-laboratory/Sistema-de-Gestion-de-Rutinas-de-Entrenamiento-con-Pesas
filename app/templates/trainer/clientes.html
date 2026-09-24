@@ -27,7 +27,12 @@
                         {% for cliente in current_user.clientes %}
                             <tr>
                                 <td class="fw-bold">{{ cliente.nombre_usuario }}</td>
-                                <td>{{ cliente.peso }}</td>
+                                <td>
+                                    <strong>{{ cliente.peso }} kg</strong>
+                                    {% if cliente.peso_objetivo %}
+                                        <br><small class="text-muted">Meta: {{ cliente.peso_objetivo }} kg</small>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <span class="badge {% if cliente.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
                                         {{ cliente.meta }}

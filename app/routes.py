@@ -8,11 +8,12 @@ from app.forms import ExerciseForm
 from app.forms import RoutineForm
 from app.forms import SessionForm
 from app.forms import PrescriptionForm
+from app.forms import ActualizarPesoForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.utils import role_required
 import sqlalchemy as sa
 from app import db
-from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie 
+from app.models import Usuario, Entrenador, Cliente, Ejercicio, Rutina, Sesion, PrescripcionEjercicioSesion, RegistroSesionEntrenamiento, RegistroEjercicioSesion, RegistroSerie, RegistroPesoCorporal 
 from flask import request
 from urllib.parse import urlsplit
 from datetime import date, datetime, timedelta
@@ -105,10 +106,27 @@ def client_profile():
 
     form = ClientProfileForm()
     if form.validate_on_submit():
-        cliente = Cliente(nombre_usuario=reg_data['username'], entrenador_id=reg_data['entrenador_id'], peso=form.peso.data, meta=form.objetivo.data, nivel_experiencia=form.nivel_experiencia.data)
+        cliente = Cliente(
+            nombre_usuario=reg_data['username'],
+            entrenador_id=reg_data['entrenador_id'],
+            peso=form.peso.data,
+            peso_objetivo=form.peso_objetivo.data,
+            dias_semana_meta=int(form.dias_semana_meta.data),
+            meta=form.objetivo.data,
+            nivel_experiencia=form.nivel_experiencia.data
+        )
         cliente.guardar_contraseña(reg_data['password'])
 
         db.session.add(cliente)
+        db.session.flush() # Obtiene el ID generado para el cliente
+
+        # Registro histórico inicial del peso (RF 11 & CU 13)
+        primer_peso = RegistroPesoCorporal(
+            cliente_id=cliente.id,
+            peso=form.peso.data,
+            fecha=date.today()
+        )
+        db.session.add(primer_peso)
         db.session.commit()
 
         # Clean session after successful registration
@@ -361,6 +379,144 @@ def perfil():
 @role_required('cliente')
 def mi_rutina():
     return render_template('cliente/mi_rutina.html')
+
+@app.route('/cliente/mi-progreso', methods=['GET', 'POST'])
+@role_required('cliente')
+def mi_progreso():
+    cliente = current_user
+    form = ActualizarPesoForm()
+
+    if form.validate_on_submit():
+        nuevo_peso = form.nuevo_peso.data
+        cliente.peso = nuevo_peso
+        reg_peso = RegistroPesoCorporal(
+            cliente_id=cliente.id,
+            peso=nuevo_peso,
+            fecha=date.today()
+        )
+        db.session.add(reg_peso)
+        db.session.commit()
+        flash(f'¡Nuevo peso corporal ({nuevo_peso} kg) registrado exitosamente!', 'success')
+        return redirect(url_for('mi_progreso'))
+
+    # 1. Trazabilidad de Peso Corporal
+    historial_pesos = db.session.scalars(
+        sa.select(RegistroPesoCorporal)
+        .where(RegistroPesoCorporal.cliente_id == cliente.id)
+        .order_by(RegistroPesoCorporal.fecha.desc(), RegistroPesoCorporal.id.desc())
+    ).all()
+
+    # Peso inicial (el registro más antiguo del historial)
+    peso_inicial = historial_pesos[-1].peso if historial_pesos else cliente.peso
+    peso_actual = cliente.peso
+    peso_objetivo = cliente.peso_objetivo if cliente.peso_objetivo else cliente.peso
+
+    # 2. Evaluación de la Meta de Peso (Semáforo con colores)
+    quiere_subir = peso_objetivo > peso_inicial
+    quiere_bajar = peso_objetivo < peso_inicial
+
+    meta_peso_alcanzada = False
+    progreso_peso_pct = 0.0
+
+    if peso_inicial == peso_objetivo:
+        meta_peso_alcanzada = abs(peso_actual - peso_objetivo) <= 0.5
+        estado_peso = 'alcanzada' if meta_peso_alcanzada else 'en_progreso'
+        color_peso = 'success' if meta_peso_alcanzada else 'warning'
+        mensaje_peso = "¡Meta de mantenimiento alcanzada!" if meta_peso_alcanzada else "Manteniéndote cerca de tu objetivo."
+        progreso_peso_pct = 100.0 if meta_peso_alcanzada else 80.0
+    elif quiere_subir:
+        delta_total = peso_objetivo - peso_inicial
+        delta_logrado = peso_actual - peso_inicial
+        if peso_actual >= peso_objetivo:
+            meta_peso_alcanzada = True
+            estado_peso = 'alcanzada'
+            color_peso = 'success'
+            mensaje_peso = f"¡Meta Alcanzada! Lograste tu objetivo de {peso_objetivo} kg."
+            progreso_peso_pct = 100.0
+        elif delta_logrado > 0:
+            estado_peso = 'en_progreso'
+            color_peso = 'warning'
+            progreso_peso_pct = min(99.0, max(5.0, round((delta_logrado / delta_total) * 100, 1)))
+            mensaje_peso = f"¡En camino! Has ganado {round(delta_logrado, 1)} kg de tu meta de +{round(delta_total, 1)} kg."
+        else:
+            estado_peso = 'no_alcanzada'
+            color_peso = 'danger'
+            progreso_peso_pct = 0.0
+            mensaje_peso = f"Meta no alcanzada aún. Tu peso actual ({peso_actual} kg) está por debajo de tu punto de inicio ({peso_inicial} kg)."
+    else:
+        delta_total = peso_inicial - peso_objetivo
+        delta_logrado = peso_inicial - peso_actual
+        if peso_actual <= peso_objetivo:
+            meta_peso_alcanzada = True
+            estado_peso = 'alcanzada'
+            color_peso = 'success'
+            mensaje_peso = f"¡Meta Alcanzada! Has logrado bajar a {peso_actual} kg (objetivo: {peso_objetivo} kg)."
+            progreso_peso_pct = 100.0
+        elif delta_logrado > 0:
+            estado_peso = 'en_progreso'
+            color_peso = 'warning'
+            progreso_peso_pct = min(99.0, max(5.0, round((delta_logrado / delta_total) * 100, 1)))
+            mensaje_peso = f"¡En camino! Has bajado {round(delta_logrado, 1)} kg de tu meta de -{round(delta_total, 1)} kg."
+        else:
+            estado_peso = 'no_alcanzada'
+            color_peso = 'danger'
+            progreso_peso_pct = 0.0
+            mensaje_peso = f"Meta no alcanzada aún. Tu peso actual ({peso_actual} kg) está por encima de tu punto de inicio ({peso_inicial} kg)."
+
+    # 3. Evaluación de la Meta Semanal de Entrenamientos
+    dias_meta = cliente.dias_semana_meta or 4
+    inicio_semana = date.today() - timedelta(days=date.today().weekday())
+    registros_semana = db.session.scalars(
+        sa.select(RegistroSesionEntrenamiento).where(
+            RegistroSesionEntrenamiento.cliente_id == cliente.id,
+            RegistroSesionEntrenamiento.fecha >= inicio_semana
+        )
+    ).all()
+    sesiones_completadas_semana = len(registros_semana)
+
+    if sesiones_completadas_semana >= dias_meta:
+        estado_semana = 'alcanzada'
+        color_semana = 'success'
+        mensaje_semana = f"¡Meta semanal cumplida! Completaste {sesiones_completadas_semana} de {dias_meta} sesiones planeadas."
+        progreso_semana_pct = 100.0
+    elif sesiones_completadas_semana > 0:
+        estado_semana = 'en_progreso'
+        color_semana = 'warning'
+        progreso_semana_pct = min(99.0, round((sesiones_completadas_semana / dias_meta) * 100, 1))
+        mensaje_semana = f"En progreso: Llevas {sesiones_completadas_semana} de {dias_meta} sesiones esta semana."
+    else:
+        estado_semana = 'no_alcanzada'
+        color_semana = 'danger'
+        progreso_semana_pct = 0.0
+        mensaje_semana = f"Aún no has registrado sesiones esta semana (Meta: {dias_meta} días)."
+
+    # 4. Total general de entrenamientos
+    total_entrenamientos = db.session.scalar(
+        sa.select(sa.func.count(RegistroSesionEntrenamiento.id))
+        .where(RegistroSesionEntrenamiento.cliente_id == cliente.id)
+    ) or 0
+
+    return render_template(
+        'cliente/progreso.html',
+        form=form,
+        cliente=cliente,
+        peso_inicial=peso_inicial,
+        peso_actual=peso_actual,
+        peso_objetivo=peso_objetivo,
+        estado_peso=estado_peso,
+        color_peso=color_peso,
+        mensaje_peso=mensaje_peso,
+        progreso_peso_pct=progreso_peso_pct,
+        meta_peso_alcanzada=meta_peso_alcanzada,
+        dias_meta=dias_meta,
+        sesiones_semana=sesiones_completadas_semana,
+        estado_semana=estado_semana,
+        color_semana=color_semana,
+        mensaje_semana=mensaje_semana,
+        progreso_semana_pct=progreso_semana_pct,
+        total_entrenamientos=total_entrenamientos,
+        historial_pesos=historial_pesos
+    )
 
 @app.route('/cliente/entrenamiento-hoy')
 @role_required('cliente')

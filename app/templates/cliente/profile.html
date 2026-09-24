@@ -29,10 +29,18 @@
                             <span class="fw-bold fs-5 text-dark">{{ current_user.peso }} kg</span>
                         </li>
                         <li class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <span class="text-muted">Peso objetivo (Meta):</span>
+                            <span class="fw-bold fs-5 text-primary">{{ current_user.peso_objetivo or current_user.peso }} kg</span>
+                        </li>
+                        <li class="d-flex justify-content-between align-items-center py-3 border-bottom">
                             <span class="text-muted">Meta u objetivo:</span>
                             <span class="badge {% if current_user.meta == 'Fuerza' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} fs-6">
                                 {{ current_user.meta }}
                             </span>
+                        </li>
+                        <li class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                            <span class="text-muted">Meta semanal de entrenamiento:</span>
+                            <span class="badge bg-primary fs-6">{{ current_user.dias_semana_meta or 4 }} días/semana</span>
                         </li>
                         <li class="d-flex justify-content-between align-items-center py-3">
                             <span class="text-muted">Nivel de experiencia:</span>
@@ -41,7 +49,10 @@
                     </ul>
 
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('mi_rutina') }}" class="btn btn-outline-primary">
+                        <a href="{{ url_for('mi_progreso') }}" class="btn btn-primary fw-semibold">
+                            🎯 Ver Estado de Mi Meta y Progreso
+                        </a>
+                        <a href="{{ url_for('mi_rutina') }}" class="btn btn-outline-secondary">
                             🏋️ Ver Mi Rutina
                         </a>
                     </div>
