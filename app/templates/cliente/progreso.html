@@ -527,9 +527,9 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <p class="card-text text-secondary mb-3" style="white-space: pre-line;">
-                                    {{ rec.mensaje }}
-                                </p>
+                                <div class="card-text text-secondary mb-3">
+                                    {{ rec.mensaje | render_markdown }}
+                                </div>
                                 {% if not rec.leido %}
                                     <form action="{{ url_for('marcar_recomendacion_leida', rec_id=rec.id) }}" method="POST" class="d-inline">
                                         <button type="submit" class="btn btn-sm btn-outline-primary">

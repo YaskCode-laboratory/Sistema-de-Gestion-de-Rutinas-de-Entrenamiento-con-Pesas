@@ -608,7 +608,7 @@ def mi_progreso():
         color_ejercicios = 'secondary'
         mensaje_ejercicios = "Aún no has registrado sesiones para medir la sobrecarga de peso en los ejercicios."
 
-    # 5. Total general de entrenamientos y recomendación única (IA)
+    # 5. Total general de entrenamientos y recomendaciones (IA)
     entrenamientos = db.session.scalars(
         sa.select(RegistroSesionEntrenamiento)
         .where(RegistroSesionEntrenamiento.cliente_id == cliente.id)
@@ -618,11 +618,11 @@ def mi_progreso():
     total_sesiones = len(entrenamientos)
     total_minutos = sum(e.duracion_minutos for e in entrenamientos)
 
-    recomendacion = db.session.scalar(
+    recomendaciones = db.session.scalars(
         sa.select(Recomendacion)
         .where(Recomendacion.cliente_id == cliente.id)
         .order_by(Recomendacion.fecha.desc())
-    )
+    ).all()
 
     registrar_log('Consulta: Mi Progreso y Metas')
     return render_template(
@@ -646,8 +646,7 @@ def mi_progreso():
         total_sesiones=total_sesiones,
         total_minutos=total_minutos,
         historial_pesos=historial_pesos,
-        recomendacion=recomendacion,
-        recomendaciones=[recomendacion] if recomendacion else [],
+        recomendaciones=recomendaciones,
         entrenamientos=entrenamientos,
         es_meta_fuerza=es_meta_fuerza,
         es_meta_hipertrofia=es_meta_hipertrofia,
@@ -842,14 +841,11 @@ def generar_recomendacion_ia_cliente():
         flash(mensaje, 'warning')
         return redirect(url_for('mi_progreso'))
 
-    # Reemplazar recomendaciones previas: solo debe existir una recomendación activa por cliente
-    db.session.execute(
-        sa.delete(Recomendacion).where(Recomendacion.cliente_id == current_user.id)
-    )
+    titulo_final = titulo if titulo.startswith("🤖") else f"🤖 {titulo}"
     nueva_rec = Recomendacion(
         cliente_id=current_user.id,
         entrenador_id=current_user.entrenador_id,
-        titulo=f"🤖 {titulo}" if not titulo.startswith("🤖") else titulo,
+        titulo=titulo_final,
         mensaje=mensaje,
         fecha=datetime.now(),
         leido=False
@@ -857,7 +853,7 @@ def generar_recomendacion_ia_cliente():
     db.session.add(nueva_rec)
     db.session.commit()
     registrar_log(f'Registro: Recomendación IA generada para {current_user.nombre_usuario}')
-    flash('¡La Inteligencia Artificial ha analizado tus entrenamientos y actualizado tu recomendación!', 'success')
+    flash('¡Análisis de Inteligencia Artificial generado con éxito y agregado a tus recomendaciones!', 'success')
     return redirect(url_for('mi_progreso'))
 
 @app.route('/trainer/clientes/<int:cliente_id>/recomendaciones/generar-ia', methods=['POST'])
@@ -874,14 +870,12 @@ def generar_recomendacion_ia_trainer(cliente_id):
         flash(mensaje, 'warning')
         return redirect(url_for('ver_entrenamientos_cliente', cliente_id=cliente.id))
 
-    # Reemplazar recomendaciones previas: solo debe existir una recomendación activa por cliente
-    db.session.execute(
-        sa.delete(Recomendacion).where(Recomendacion.cliente_id == cliente.id)
-    )
+    titulo_limpio = titulo[2:].strip() if titulo.startswith("🤖") else titulo
+    titulo_final = f"🤖 {titulo_limpio} (Supervisado por Entrenador)"
     nueva_rec = Recomendacion(
         cliente_id=cliente.id,
         entrenador_id=current_user.id,
-        titulo=f"🤖 {titulo} (Supervisado por Entrenador)" if not titulo.startswith("🤖") else f"{titulo} (Supervisado)",
+        titulo=titulo_final,
         mensaje=mensaje,
         fecha=datetime.now(),
         leido=False
@@ -889,5 +883,5 @@ def generar_recomendacion_ia_trainer(cliente_id):
     db.session.add(nueva_rec)
     db.session.commit()
     registrar_log(f'Registro: Recomendación IA supervisada para {cliente.nombre_usuario}')
-    flash(f'¡Análisis de IA generado y actualizado como recomendación única para {cliente.nombre_usuario}!', 'success')
+    flash(f'¡Análisis de IA generado y enviado como recomendación a {cliente.nombre_usuario}!', 'success')
     return redirect(url_for('ver_entrenamientos_cliente', cliente_id=cliente.id))

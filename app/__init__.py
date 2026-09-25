@@ -11,4 +11,7 @@ migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
 
+from app.utils import render_markdown
+app.jinja_env.filters['render_markdown'] = render_markdown
+
 from app import routes, models

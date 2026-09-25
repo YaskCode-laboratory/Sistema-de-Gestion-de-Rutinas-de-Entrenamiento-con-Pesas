@@ -12,3 +12,4 @@ class Config:
     AUDITORIA_LOG_FILE = os.environ.get('AUDITORIA_LOG_FILE') or \
         os.path.join(basedir, 'auditoria_log.txt')
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    GEMINI_MODEL = os.environ.get('GEMINI_MODEL') or 'gemini-2.5-flash'

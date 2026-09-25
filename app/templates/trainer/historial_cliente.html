@@ -74,7 +74,7 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="text-secondary small" style="white-space: pre-line;">{{ r.mensaje }}</div>
+                                <div class="text-secondary small">{{ r.mensaje | render_markdown }}</div>
                             </div>
                         </div>
                     {% endfor %}

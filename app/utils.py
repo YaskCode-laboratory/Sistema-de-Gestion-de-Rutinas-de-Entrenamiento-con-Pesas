@@ -50,3 +50,103 @@ def registrar_log(actividad, usuario=None):
     except Exception as e:
         print(f"Error registrando actividad en log de auditoría: {e}")
 
+def render_markdown(text: str):
+    """
+    Convierte sintaxis básica de Markdown (encabezados, negrita, cursiva, listas, saltos)
+    en HTML seguro y estilizado con clases de Bootstrap.
+    """
+    import re
+    from markupsafe import Markup, escape
+
+    if not text:
+        return Markup("")
+
+    escaped = str(escape(text))
+    lineas = escaped.split('\n')
+    html_lineas = []
+    en_lista_desordenada = False
+    en_lista_ordenada = False
+
+    for linea in lineas:
+        l = linea.strip()
+
+        # Encabezados ###
+        if l.startswith('### '):
+            if en_lista_desordenada:
+                html_lineas.append('</ul>')
+                en_lista_desordenada = False
+            if en_lista_ordenada:
+                html_lineas.append('</ol>')
+                en_lista_ordenada = False
+            contenido = l[4:].strip()
+            contenido = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', contenido)
+            html_lineas.append(f'<h6 class="fw-bold text-primary mt-3 mb-2">{contenido}</h6>')
+            continue
+
+        # Encabezados ##
+        elif l.startswith('## '):
+            if en_lista_desordenada:
+                html_lineas.append('</ul>')
+                en_lista_desordenada = False
+            if en_lista_ordenada:
+                html_lineas.append('</ol>')
+                en_lista_ordenada = False
+            contenido = l[3:].strip()
+            contenido = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', contenido)
+            html_lineas.append(f'<h5 class="fw-bold text-dark mt-3 mb-2">{contenido}</h5>')
+            continue
+
+        # Listas desordenadas: - o • o *
+        elif re.match(r'^[-•\*]\s+(.+)', l):
+            if en_lista_ordenada:
+                html_lineas.append('</ol>')
+                en_lista_ordenada = False
+            if not en_lista_desordenada:
+                html_lineas.append('<ul class="mb-2 ps-3">')
+                en_lista_desordenada = True
+            m = re.match(r'^[-•\*]\s+(.+)', l)
+            contenido = m.group(1)
+            contenido = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', contenido)
+            contenido = re.sub(r'\*(.+?)\*', r'<em>\1</em>', contenido)
+            html_lineas.append(f'<li class="mb-1">{contenido}</li>')
+            continue
+
+        # Listas ordenadas: 1. 2. etc.
+        elif re.match(r'^\d+\.\s+(.+)', l):
+            if en_lista_desordenada:
+                html_lineas.append('</ul>')
+                en_lista_desordenada = False
+            if not en_lista_ordenada:
+                html_lineas.append('<ol class="mb-2 ps-3">')
+                en_lista_ordenada = True
+            m = re.match(r'^\d+\.\s+(.+)', l)
+            contenido = m.group(1)
+            contenido = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', contenido)
+            contenido = re.sub(r'\*(.+?)\*', r'<em>\1</em>', contenido)
+            html_lineas.append(f'<li class="mb-1">{contenido}</li>')
+            continue
+
+        else:
+            if en_lista_desordenada:
+                html_lineas.append('</ul>')
+                en_lista_desordenada = False
+            if en_lista_ordenada:
+                html_lineas.append('</ol>')
+                en_lista_ordenada = False
+
+            if not l:
+                html_lineas.append('<div class="my-1"></div>')
+            else:
+                contenido = l
+                contenido = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', contenido)
+                contenido = re.sub(r'\*(.+?)\*', r'<em>\1</em>', contenido)
+                html_lineas.append(f'<p class="mb-1">{contenido}</p>')
+
+    if en_lista_desordenada:
+        html_lineas.append('</ul>')
+    if en_lista_ordenada:
+        html_lineas.append('</ol>')
+
+    return Markup("\n".join(html_lineas))
+
+

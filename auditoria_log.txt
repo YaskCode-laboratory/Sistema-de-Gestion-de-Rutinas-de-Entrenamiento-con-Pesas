@@ -363,3 +363,149 @@
 2026-09-24 10:49:20, jose, Consulta: Librería de Ejercicios
 2026-09-24 10:49:25, jose, Consulta: Mis Rutinas
 2026-09-24 10:49:27, jose, Consulta: Mis Clientes
+2026-09-24 10:54:51, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:54:51, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 10:55:00, maria, Consulta: Mi Progreso y Metas
+2026-09-24 10:58:38, jose, Consulta: Librería de Ejercicios
+2026-09-24 10:58:40, jose, Consulta: Mis Rutinas
+2026-09-24 10:58:41, jose, Consulta: Mis Clientes
+2026-09-24 11:14:06, maria, Registro: Recomendación IA generada para maria
+2026-09-24 11:14:06, maria, Consulta: Mi Progreso y Metas
+2026-09-24 11:14:24, jose, Logout
+2026-09-24 11:14:28, jose, Login
+2026-09-24 11:14:28, jose, Consulta: Mis Clientes
+2026-09-24 11:14:34, jose, Consulta: Mis Rutinas
+2026-09-24 11:14:35, jose, Consulta: Librería de Ejercicios
+2026-09-24 11:15:00, jose, Registro: Ejercicio "Curl de Biceps con Mancuerna en Banca inclinada"
+2026-09-24 11:15:00, jose, Consulta: Librería de Ejercicios
+2026-09-24 11:15:10, jose, Consulta: Mis Rutinas
+2026-09-24 11:15:22, jose, Registro: Rutina "Empuje/Jalon/Pierna"
+2026-09-24 11:15:22, jose, Consulta: Mis Rutinas
+2026-09-24 11:16:13, maria, Registro: Recomendación IA generada para maria
+2026-09-24 11:16:13, maria, Consulta: Mi Progreso y Metas
+2026-09-24 11:20:12, maria, Registro: Recomendación IA generada para maria
+2026-09-24 11:20:12, maria, Consulta: Mi Progreso y Metas
+2026-09-24 11:20:59, miguel, Registro: Recomendación IA generada para miguel
+2026-09-24 11:20:59, miguel, Consulta: Mi Progreso y Metas
+2026-09-24 11:21:15, jose, Logout
+2026-09-24 11:27:46, luis, Registro: Entrenador
+2026-09-24 11:27:51, luis, Login
+2026-09-24 11:27:51, luis, Consulta: Mis Clientes
+2026-09-24 11:28:09, luis, Logout
+2026-09-24 11:28:44, luisa, Registro: Cliente
+2026-09-24 11:28:48, luisa, Login
+2026-09-24 11:28:48, luisa, Consulta: Mi Perfil
+2026-09-24 11:29:19, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:29:38, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:29:48, luisa, Consulta: Mi Perfil
+2026-09-24 11:29:49, luisa, Logout
+2026-09-24 11:29:53, luis, Login
+2026-09-24 11:29:53, luis, Consulta: Mis Clientes
+2026-09-24 11:29:56, luis, Consulta: Mis Rutinas
+2026-09-24 11:29:58, luis, Consulta: Librería de Ejercicios
+2026-09-24 11:30:25, luis, Registro: Ejercicio "Curl de biceps sentado  con mancuerna"
+2026-09-24 11:30:25, luis, Consulta: Librería de Ejercicios
+2026-09-24 11:30:29, luis, Consulta: Mis Rutinas
+2026-09-24 11:30:48, luis, Registro: Rutina "Torso-Pierna"
+2026-09-24 11:30:48, luis, Consulta: Mis Rutinas
+2026-09-24 11:30:50, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:30:52, luis, Consulta: Mis Rutinas
+2026-09-24 11:30:53, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:31:01, luis, Registro: Sesión "Torso" en Rutina "Torso-Pierna"
+2026-09-24 11:31:01, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:31:28, luis, Registro: Prescripción en Sesión "Torso"
+2026-09-24 11:31:28, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:31:46, luis, Registro: Prescripción en Sesión "Torso"
+2026-09-24 11:31:46, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:32:02, luis, Registro: Sesión "Pierna" en Rutina "Torso-Pierna"
+2026-09-24 11:32:02, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:32:09, luis, Registro: Prescripción en Sesión "Pierna"
+2026-09-24 11:32:09, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:32:17, luis, Registro: Prescripción en Sesión "Pierna"
+2026-09-24 11:32:17, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:32:19, luis, Consulta: Mis Rutinas
+2026-09-24 11:32:22, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:32:31, luis, Consulta: Mis Rutinas
+2026-09-24 11:32:32, luis, Consulta: Mis Clientes
+2026-09-24 11:32:34, luis, Consulta: Asignar Rutina a Cliente luisa
+2026-09-24 11:32:47, luis, Consulta: Detalle Rutina "Torso-Pierna"
+2026-09-24 11:32:50, luis, Consulta: Mis Rutinas
+2026-09-24 11:32:51, luis, Consulta: Mis Clientes
+2026-09-24 11:32:52, luis, Consulta: Historial Entrenamientos de Cliente luisa
+2026-09-24 11:32:55, luis, Consulta: Asignar Rutina a Cliente luisa
+2026-09-24 11:32:56, luis, Registro: Asignación de Rutina "Torso-Pierna" a Cliente luisa
+2026-09-24 11:32:56, luis, Consulta: Mis Clientes
+2026-09-24 11:33:23, luis, Logout
+2026-09-24 11:33:27, luisa, Login
+2026-09-24 11:33:27, luisa, Consulta: Mi Perfil
+2026-09-24 11:33:31, luisa, Consulta: Mi Rutina
+2026-09-24 11:33:38, luisa, Consulta: Entrenamiento del Día
+2026-09-24 11:33:39, luisa, Consulta: Entrenamiento del Día
+2026-09-24 11:35:00, luisa, Registro: Entrenamiento completado "Torso" (Duración: 1 min)
+2026-09-24 11:35:00, luisa, Consulta: Mi Perfil
+2026-09-24 11:35:08, luisa, Logout
+2026-09-24 11:35:13, luis, Login
+2026-09-24 11:35:13, luis, Consulta: Mis Clientes
+2026-09-24 11:35:18, luis, Consulta: Historial Entrenamientos de Cliente luisa
+2026-09-24 11:35:30, luis, Consulta: Mis Clientes
+2026-09-24 11:35:42, luis, Consulta: Librería de Ejercicios
+2026-09-24 11:35:42, luis, Consulta: Mis Clientes
+2026-09-24 11:35:43, luis, Consulta: Mis Rutinas
+2026-09-24 11:35:44, luis, Consulta: Librería de Ejercicios
+2026-09-24 11:35:45, luis, Logout
+2026-09-24 11:35:49, luisa, Login
+2026-09-24 11:35:49, luisa, Consulta: Mi Perfil
+2026-09-24 11:35:50, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:36:12, luisa, Consulta: Mi Perfil
+2026-09-24 11:36:14, luisa, Consulta: Mi Rutina
+2026-09-24 11:36:15, luisa, Consulta: Entrenamiento del Día
+2026-09-24 11:36:35, luisa, Consulta: Entrenamiento del Día
+2026-09-24 11:37:12, luisa, Registro: Entrenamiento completado "Pierna" (Duración: 1 min)
+2026-09-24 11:37:12, luisa, Consulta: Mi Perfil
+2026-09-24 11:37:14, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:37:30, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:37:53, luisa, Registro: Recomendación IA generada para luisa
+2026-09-24 11:37:53, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:40:49, luisa, Registro: Recomendación IA generada para luisa
+2026-09-24 11:40:49, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:42:32, maria, Consulta: Mi Perfil
+2026-09-24 11:42:33, maria, Consulta: Mi Progreso y Metas
+2026-09-24 11:42:35, maria, Registro: Recomendación IA generada para maria
+2026-09-24 11:42:35, maria, Consulta: Mi Progreso y Metas
+2026-09-24 11:42:42, maria, Registro: Recomendación IA generada para maria
+2026-09-24 11:42:42, maria, Consulta: Mi Progreso y Metas
+2026-09-24 11:45:17, maria, Logout
+2026-09-24 11:45:24, luisa, Login
+2026-09-24 11:45:24, luisa, Consulta: Mi Perfil
+2026-09-24 11:45:25, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:45:46, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:45:46, luisa, Consulta: Mi Rutina
+2026-09-24 11:45:47, luisa, Consulta: Mi Perfil
+2026-09-24 11:45:47, luisa, Consulta: Mi Rutina
+2026-09-24 11:45:48, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:46:51, luisa, Consulta: Mi Rutina
+2026-09-24 11:46:51, luisa, Consulta: Mi Perfil
+2026-09-24 11:49:09, luisa, Consulta: Mi Rutina
+2026-09-24 11:49:09, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:49:10, luisa, Consulta: Mi Perfil
+2026-09-24 11:49:11, luisa, Consulta: Mi Rutina
+2026-09-24 11:49:11, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:49:55, luisa, Consulta: Mi Rutina
+2026-09-24 11:49:56, luisa, Consulta: Mi Progreso y Metas
+2026-09-24 11:49:57, luisa, Consulta: Mi Perfil
+2026-09-24 16:10:54, maria, Consulta: Mi Progreso y Metas
+2026-09-24 16:10:54, jose, Consulta: Historial Entrenamientos de Cliente maria
+2026-09-24 16:11:00, maria, Registro: Recomendación IA generada para maria
+2026-09-24 16:11:00, maria, Consulta: Mi Progreso y Metas
+2026-09-24 16:11:00, maria, Eliminación: Recomendación eliminada por maria
+2026-09-24 16:11:00, maria, Consulta: Mi Progreso y Metas
+2026-09-24 16:18:10, maria, Login
+2026-09-24 16:18:10, maria, Consulta: Mi Perfil
+2026-09-24 16:18:11, maria, Consulta: Mi Progreso y Metas
+2026-09-24 16:18:17, maria, Registro: Recomendación IA generada para maria
+2026-09-24 16:18:17, maria, Consulta: Mi Progreso y Metas
+2026-09-25 14:05:33, maria, Login
+2026-09-25 14:05:33, maria, Consulta: Mi Perfil
+2026-09-25 14:05:34, maria, Consulta: Mi Progreso y Metas
+2026-09-25 14:05:37, maria, Registro: Recomendación IA generada para maria
+2026-09-25 14:05:37, maria, Consulta: Mi Progreso y Metas
