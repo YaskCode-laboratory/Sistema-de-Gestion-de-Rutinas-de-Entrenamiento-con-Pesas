@@ -143,19 +143,28 @@ def _extraer_titulo_y_cuerpo(texto_completo: str, modelo_usado: str = "") -> tup
 
 def _invocar_gemini_api(api_key: str, prompt: str) -> tuple[str, str]:
     """
-    Invoca la API de Google Gemini para generar contenido.
-    Implementado con la librería estándar urllib.request para máxima portabilidad (cero dependencias externas obligatorias),
-    con fallback automático a los modelos oficiales actuales de Gemini (gemini-2.5-flash, gemini-1.5-flash, gemini-2.0-flash).
+    Invoca la API de Google Gemini para generar contenido con consumo mínimo de tokens.
+    Prioriza el modelo 'gemini-3.5-flash-lite' (el más generoso en cuotas del Free Tier),
+    con failover automático a 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite' y 'gemini-3.8-flash'.
+    Maneja conmutación resiliente ante códigos HTTP 503 (alta demanda temporal), 429, 404 y timeouts.
     """
     modelo_configurado = os.environ.get('GEMINI_MODEL')
+    try:
+        if not modelo_configurado and current_app:
+            modelo_configurado = current_app.config.get('GEMINI_MODEL')
+    except Exception:
+        pass
+
+    # Modelos candidatos válidos y actualizados (gemini-3.5-flash-lite prioritario)
     modelos_candidatos = [
         modelo_configurado,
-        'gemini-2.5-flash',
-        'gemini-1.5-flash',
-        'gemini-2.0-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-flash-lite-latest',
+        'gemini-3.1-flash-lite',
+        'gemini-3.8-flash',
         'gemini-flash-latest'
     ]
-    # Filtrar None, vacíos y duplicados preservando orden
+    # Filtrar None, vacíos y duplicados preservando orden de prioridad
     modelos = []
     for m in modelos_candidatos:
         if m and m not in modelos:
@@ -165,6 +174,9 @@ def _invocar_gemini_api(api_key: str, prompt: str) -> tuple[str, str]:
     for model in modelos:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            # Optimización estricta de tokens de acuerdo a guías oficiales de Gemini 3.x:
+            # - Sin parámetros obsoletos (temperature, top_p, top_k no recomendados en Gemini 3.x)
+            # - maxOutputTokens acotado para reservar suficiente para razonamiento interno + respuesta
             payload = {
                 "contents": [
                     {
@@ -173,8 +185,7 @@ def _invocar_gemini_api(api_key: str, prompt: str) -> tuple[str, str]:
                     }
                 ],
                 "generationConfig": {
-                    "temperature": 0.7,
-                    "maxOutputTokens": 1200
+                    "maxOutputTokens": 800
                 }
             }
             data = json.dumps(payload).encode('utf-8')
@@ -185,7 +196,7 @@ def _invocar_gemini_api(api_key: str, prompt: str) -> tuple[str, str]:
                 method="POST"
             )
 
-            with urllib.request.urlopen(req, timeout=25) as resp:
+            with urllib.request.urlopen(req, timeout=15) as resp:
                 data_resp = json.loads(resp.read().decode('utf-8'))
                 candidates = data_resp.get('candidates', [])
                 if candidates:
@@ -199,12 +210,13 @@ def _invocar_gemini_api(api_key: str, prompt: str) -> tuple[str, str]:
 
         except urllib.error.HTTPError as he:
             err_msg = he.read().decode('utf-8', errors='ignore')
-            print(f"[Gemini API] HTTP {he.code} con modelo '{model}': {err_msg}")
+            print(f"[Gemini API] HTTP {he.code} con modelo '{model}': {err_msg[:200]}")
             ultimo_error = f"HTTP {he.code} ({model})"
-            # Si el modelo no está disponible (404), intentamos con el siguiente en la lista
-            if he.code == 404:
+            # Si el modelo no está disponible (404), sufre pico de alta demanda temporal (503),
+            # o saturación transitoria de cuota (429/500/502/504), conmutamos al siguiente modelo de respaldo
+            if he.code in (404, 429, 500, 502, 503, 504):
                 continue
-            # Error de API Key inválida o cuota
+            # Error fatal de credenciales inválidas (400, 401, 403)
             raise Exception(f"Gemini API Error: {ultimo_error} - {err_msg}")
         except Exception as e:
             print(f"[Gemini API] Error al invocar con modelo '{model}': {e}")
@@ -362,41 +374,52 @@ def generar_recomendacion_ia(cliente_id: int) -> tuple[str, str]:
         return None, "No hay suficientes entrenamientos registrados para realizar un análisis de IA. Completa al menos una sesión de entrenamiento."
 
     # Intentar invocar a Google Gemini API si hay API Key disponible
-    api_key = os.environ.get('GEMINI_API_KEY') or current_app.config.get('GEMINI_API_KEY')
+    api_key = os.environ.get('GEMINI_API_KEY')
+    try:
+        if not api_key and current_app:
+            api_key = current_app.config.get('GEMINI_API_KEY')
+    except Exception:
+        pass
+
     if api_key and api_key.strip():
         api_key = api_key.strip()
         try:
-            # Construcción del prompt estructurado con los datos compilados
+            # Resumen conciso para minimizar drásticamente el consumo de tokens de entrada (Input Tokens)
+            sesiones_recientes = datos['resumen_sesiones'][-3:]
             sesiones_texto = []
-            for s in datos['resumen_sesiones'][-10:]:  # Últimas 10 sesiones para no saturar tokens
-                sesiones_texto.append(f"• Fecha {s['fecha']} ({s['nombre_sesion']}, ánimo: {s['estado_animo']}): {'; '.join(s['ejercicios'])}")
+            for s in sesiones_recientes:
+                sesiones_texto.append(f"• {s['fecha']} ({s['nombre_sesion']}): {'; '.join(s['ejercicios'][:3])}")
             historial_str = "\n".join(sesiones_texto)
+
+            # Estadísticas de ejercicios clave con sobrecarga
+            top_ejercicios = []
+            for ej_nombre, st in list(datos['ejercicios_stats'].items())[:4]:
+                delta = st.get('delta_peso', 0.0)
+                delta_str = f" (+{delta}kg)" if delta > 0 else ""
+                top_ejercicios.append(f"{ej_nombre}: máx {st['max_peso']}kg{delta_str}")
+            ejercicios_resumen = ", ".join(top_ejercicios) if top_ejercicios else "Ejercicios base registrados"
 
             peso_historial_str = ", ".join(datos['historial_pesos_resumen']) if datos['historial_pesos_resumen'] else f"{datos['peso_actual']} kg"
 
-            prompt = f"""Actúa como un entrenador científico de élite y especialista en biomecánica y sobrecarga progresiva (estilo Eric Helms, Mike Israetel, 3DMJ, Renaissance Periodization).
-Analiza el siguiente perfil y los registros reales de entrenamiento y peso corporal de este cliente:
+            prompt = f"""Actúa como un entrenador científico y conciso (estilo Mike Israetel / Eric Helms).
+Analiza estos registros reales y responde con un consumo mínimo de tokens (máximo 140 palabras en total).
 
-DATOS DEL CLIENTE:
-- Nombre: {cliente.nombre_usuario}
-- Objetivo Principal: {cliente.meta}
-- Nivel de Experiencia: {cliente.nivel_experiencia}
-- Peso Corporal Actual: {datos['peso_actual']} kg
-- Peso Objetivo: {cliente.peso_objetivo or 'No fijado'} kg
-- Historial de Pesos: [{peso_historial_str}]
-- Rutina Asignada: {cliente.rutina_asignada.nombre if cliente.rutina_asignada else 'Rutina personalizada'}
-- Frecuencia Semanal Meta: {datos['dias_semana_meta']} días/semana
-- Total de Sesiones Registradas: {datos['total_sesiones']} ({datos['total_minutos']} minutos)
-
-HISTORIAL DE ENTRENAMIENTOS REALIZADOS (PESOS Y REPETICIONES):
+DATOS:
+- Alumno: {cliente.nombre_usuario} | Meta: {cliente.meta} | Nivel: {cliente.nivel_experiencia}
+- Peso: {datos['peso_actual']} kg (Meta: {cliente.peso_objetivo or 'N/A'} kg) | Historial pesajes: [{peso_historial_str}]
+- Sesiones totales: {datos['total_sesiones']} ({datos['total_minutos']} min) | Frecuencia meta: {datos['dias_semana_meta']} días/sem
+- Cargas clave: {ejercicios_resumen}
+- Últimos entrenamientos:
 {historial_str}
 
-REQUERIMIENTOS DE LA RESPUESTA (Caso de Uso CU17 / Requerimiento RF14):
-1. Proporciona en la primera línea un TÍTULO directo en el formato: "TITULO: <tu titulo breve y motivador>"
-2. Diagnóstico del Rendimiento: Evalúa la sobrecarga progresiva, los pesos usados, evolución del peso corporal y las notas dejadas por el alumno.
-3. Recomendaciones Específicas: Indica pautas claras de ajuste de cargas (cuántos kg subir, mantener o ajustar en ejercicios concretos) y descansos para sus próximas sesiones.
-4. Proyección de Tiempo Estimado: Calcula en cuántas semanas o meses comenzará a ver resultados notorios o alcanzará su meta según su adherencia y datos de peso/cargas.
-5. Usa formato markdown limpio y estructurado con encabezados '### '. No inventes ejercicios que el cliente no haya registrado."""
+REGLAS DE FORMATO (Obligatorio, máx 140 palabras):
+TITULO: <título motivador en 6 palabras o menos>
+### Diagnóstico del Rendimiento
+<2 frases precisas sobre sobrecarga progresiva y adherencia>
+### Recomendaciones y Ajuste de Cargas
+<2 pautas técnicas directas: kg a subir en próximos entrenos y descanso>
+### Proyección de Tiempo Estimado (RF14)
+<1-2 frases indicando semanas o meses calculados para alcanzar el objetivo>"""
 
             titulo, cuerpo = _invocar_gemini_api(api_key, prompt)
             return titulo, cuerpo
