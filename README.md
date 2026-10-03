@@ -198,7 +198,7 @@ direction TB
    - [9.3. Matriz Integral de Casos de Prueba (25 Casos)](#93-matriz-integral-de-casos-de-prueba)
    - [9.4. Resultados de Ejecución y Métricas de Calidad](#94-resultados-de-ejecución-y-métricas-de-calidad)
    - [9.5. Salida Literal del Test Runner](#95-salida-literal-del-ejecutor-de-pruebas-test-runner-output)
-   - [9.6. Matriz de Trazabilidad de Requerimientos](#96-matriz-de-trazabilidad-casos-de-uso-y-requerimientos-vs-pruebas
+   - [9.6. Matriz de Trazabilidad de Requerimientos](#96-matriz-de-trazabilidad-casos-de-uso-y-requerimientos-vs-pruebas)
 10. [Evidencias ](#-10-evidencias)
 11. [Estado Final y Trabajo Futuro](#-11-estado-final-y-trabajo-futuro)
 12. [Cierre del Proyecto](#-12-cierre-del-proyecto)
@@ -507,7 +507,7 @@ La interconexión de todas las capas del sistema se aprecia con máxima claridad
 2. **Extracción y Consulta de Dominio (ORM)**:
    [`ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py) ejecuta [`recopilar_datos_entrenamiento(cliente)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L11), la cual formula consultas `sa.select` mediante SQLAlchemy 2.0 sobre [`RegistroSesionEntrenamiento`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L153), [`RegistroEjercicioSesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L170), [`RegistroSerie`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L184) y [`RegistroPesoCorporal`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L197).
 3. **Procesamiento de Métricas y Reducción Cuantitativa**:
-   El servicio compila deltas de fuerza ($\Delta kg = \text{carga\_máxima} - \text{primera\_carga}$), adherencia semanal y variación ponderal, construyendo un prompt sintetizado (≤ 140 palabras) para minimizar drásticamente el consumo de tokens.
+   El servicio compila deltas de fuerza $\Delta \text{kg} = \text{carga máxima} - \text{primera carga}$, adherencia semanal y variación ponderal, construyendo un prompt sintetizado (≤ 140 palabras) para minimizar drásticamente el consumo de tokens.
 4. **Inferencia con Fallover Multi-Modelo o Respaldo Heurístico**:
    Se envía la petición HTTP a la API v1beta de **Google Gemini** con conmutación inteligente (`gemini-3.5-flash-lite` ➔ `gemini-flash-lite-latest` ➔ `gemini-3.8-flash`). Si no hay conexión o no existe API key, conmuta inmediatamente al motor heurístico determinista local.
 5. **Persistencia Transaccional en Base de Datos**:
@@ -846,7 +846,7 @@ TrainerApp adopta una arquitectura desacoplada basada en MVC:
 - **Ubicación**: Flujo de ejecución en [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py).
 - **Problema que resuelve**: Procesar secuencialmente validaciones de seguridad y datos en cada invocación web.
 - **Implementación**: Cada petición atraviesa una cadena ordenada de interceptores:
-  $$\text{Petición HTTP} \longrightarrow \text{@login\_required} \longrightarrow \text{@role\_required} \longrightarrow \text{form.validate\_on\_submit()} \longrightarrow \text{Controlador} \longrightarrow \text{registrar\_log()} \longrightarrow \text{Respuesta HTML}$$
+$$\text{Petición HTTP} \longrightarrow \text{@login\\_required} \longrightarrow \text{@role\\_required} \longrightarrow \text{form.validate\\_on\\_submit()} \longrightarrow \text{Controlador} \longrightarrow \text{registrar\\_log()} \longrightarrow \text{Respuesta HTML}$$
 
 ##### **Observer / Append-Only Logging Pattern (Módulo de Auditoría)**
 - **Ubicación**: [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20) ([`registrar_log`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20)).
