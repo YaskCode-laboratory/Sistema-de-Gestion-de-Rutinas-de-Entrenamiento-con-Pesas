@@ -689,3 +689,24 @@
 2026-09-28 15:50:11, miguel, Consulta: Mi Perfil
 2026-09-28 15:50:12, miguel, Consulta: Mi Rutina
 2026-09-28 15:50:13, miguel, Consulta: Mi Progreso y Metas
+2026-10-03 14:54:44, jose, Login
+2026-10-03 14:54:44, jose, Consulta: Mis Clientes
+2026-10-03 14:54:45, jose, Consulta: Mis Clientes
+2026-10-03 14:54:46, jose, Consulta: Mis Rutinas
+2026-10-03 14:54:47, jose, Consulta: Librería de Ejercicios
+2026-10-03 14:54:48, jose, Consulta: Mis Rutinas
+2026-10-03 14:54:50, jose, Consulta: Librería de Ejercicios
+2026-10-03 14:54:50, jose, Consulta: Librería de Ejercicios
+2026-10-03 14:54:51, jose, Consulta: Mis Rutinas
+2026-10-03 14:55:17, jose, Consulta: Detalle Rutina "Empuje/Jalon/Pierna"
+2026-10-03 14:55:22, jose, Consulta: Mis Rutinas
+2026-10-03 14:56:48, jose, Logout
+2026-10-03 14:56:54, maria, Login
+2026-10-03 14:56:54, maria, Consulta: Mi Perfil
+2026-10-03 14:56:57, maria, Consulta: Mi Rutina
+2026-10-03 14:56:59, maria, Consulta: Entrenamiento del Día
+2026-10-03 14:57:00, maria, Consulta: Entrenamiento del Día
+2026-10-03 14:57:04, maria, Consulta: Mi Perfil
+2026-10-03 14:57:05, maria, Consulta: Mi Rutina
+2026-10-03 14:57:06, maria, Consulta: Entrenamiento del Día
+2026-10-03 14:57:38, maria, Consulta: Mi Progreso y Metas
