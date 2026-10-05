@@ -322,24 +322,24 @@ La aplicación separa estrictamente las responsabilidades en capas funcionales p
 1. **Capa de Presentación (Vistas / UI)**:
    - Construida con plantillas [Jinja2](https://jinja.palletsprojects.com/) modularizadas (`app/templates/`) y maquetadas con **Bootstrap 5.3**.
    - Integra retroalimentación visual reactiva (alertas flash, modales, barras de progreso de sobrecarga y semáforos de cumplimiento de metas).
-   - Utiliza el filtro personalizado [`render_markdown`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L53) para compilar en HTML seguro las respuestas técnicas estructuradas emitidas por los motores de Inteligencia Artificial.
+   - Utiliza el filtro personalizado [`render_markdown`](app/utils.py#L53) para compilar en HTML seguro las respuestas técnicas estructuradas emitidas por los motores de Inteligencia Artificial.
 
 2. **Capa de Control y Enrutamiento (Controladores)**:
-   - Centralizada en [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py).
-   - Recibe las peticiones HTTP (GET/POST), aplica los interceptores de seguridad (`@login_required`, [`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7)), valida los datos entrantes mediante los formularios fuertemente tipados de [`app/forms.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py) y orquesta la comunicación entre la lógica de negocio y la persistencia.
+   - Centralizada en [`app/routes.py`](app/routes.py).
+   - Recibe las peticiones HTTP (GET/POST), aplica los interceptores de seguridad (`@login_required`, [`@role_required`](app/utils.py#L7)), valida los datos entrantes mediante los formularios fuertemente tipados de [`app/forms.py`](app/forms.py) y orquesta la comunicación entre la lógica de negocio y la persistencia.
 
 3. **Capa de Lógica de Negocio y Servicios Transversales**:
-   - **Servicio de Inteligencia Artificial y Motor Heurístico** ([`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py)): Extrae registros históricos, calcula métricas fisiológicas y de sobrecarga, e interactúa con Google Gemini REST API v1beta o ejecuta el algoritmo heurístico determinista de alta disponibilidad.
-   - **Módulo de Auditoría de Sistemas** ([`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20)): Registra de manera inmutable y secuencial cada transacción crítica en [`auditoria_log.txt`](file:///home/jose/university/ingenieria-de-software/proyecto/auditoria_log.txt) en formato estructurado (`FECHA, USUARIO, ACTIVIDAD`).
-   - **Comandos CLI del Sistema** ([`trainerapp.py`](file:///home/jose/university/ingenieria-de-software/proyecto/trainerapp.py)): Automatización del sembrado de datos maestros (`flask seed`) y generación de bitácoras de auditoría de prueba (`flask seed-log`).
+   - **Servicio de Inteligencia Artificial y Motor Heurístico** ([`app/ai_service.py`](app/ai_service.py)): Extrae registros históricos, calcula métricas fisiológicas y de sobrecarga, e interactúa con Google Gemini REST API v1beta o ejecuta el algoritmo heurístico determinista de alta disponibilidad.
+   - **Módulo de Auditoría de Sistemas** ([`app/utils.py`](app/utils.py#L20)): Registra de manera inmutable y secuencial cada transacción crítica en [`auditoria_log.txt`](auditoria_log.txt) en formato estructurado (`FECHA, USUARIO, ACTIVIDAD`).
+   - **Comandos CLI del Sistema** ([`trainerapp.py`](trainerapp.py)): Automatización del sembrado de datos maestros (`flask seed`) y generación de bitácoras de auditoría de prueba (`flask seed-log`).
 
 4. **Capa de Dominio y Acceso a Datos (Modelos / ORM)**:
-   - Definida en [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py) con **SQLAlchemy 2.0**.
+   - Definida en [`app/models.py`](app/models.py) con **SQLAlchemy 2.0**.
    - Implementa herencia polimórfica relacional (*Joined Table Inheritance* - JTI), encapsula reglas de negocio (como el hashing criptográfico de contraseñas y la generación de códigos únicos de vinculación) y define la integridad referencial con eliminación en cascada.
 
 5. **Capa de Persistencia y Almacenamiento**:
    - **Base de Datos Relacional**: Motor transaccional **SQLite 3** (`app.db`), gestionado y versionado mediante **Alembic / Flask-Migrate**.
-   - **Almacenamiento Plano de Auditoría**: Archivo [`auditoria_log.txt`](file:///home/jose/university/ingenieria-de-software/proyecto/auditoria_log.txt) para trazabilidad forense independiente del motor SQL.
+   - **Almacenamiento Plano de Auditoría**: Archivo [`auditoria_log.txt`](auditoria_log.txt) para trazabilidad forense independiente del motor SQL.
 
 6. **Capa de Servicios Externos**:
    - **Google Gemini REST API (v1beta)**: Proveedor de modelos de lenguaje multimodal (familia Gemini 3.x) consumido mediante peticiones HTTP nativas con `urllib.request`.
@@ -409,14 +409,14 @@ El proyecto se estructura bajo el paquete modular `app/` complementado por archi
 
 | Archivo / Módulo | Responsabilidad Principal | Dependencias Clave | Interacción / Rol en el Sistema |
 | :--- | :--- | :--- | :--- |
-| [`config.py`](file:///home/jose/university/ingenieria-de-software/proyecto/config.py) | Configuración global, variables de entorno (`.env`, `.flaskenv`), secretos de sesión, URI de SQLite, log de auditoría y credenciales de Gemini. | `python-dotenv`, `os` | Es importado por `app/__init__.py` para inicializar el contexto de Flask y SQLAlchemy. |
-| [`trainerapp.py`](file:///home/jose/university/ingenieria-de-software/proyecto/trainerapp.py) | Punto de entrada de la aplicación para el servidor WSGI y comandos CLI de administración (`flask seed`, `flask seed-log`). | `app`, `app.models`, `SQLAlchemy` | Permite la puesta en marcha inicial del sistema y el sembrado de ejercicios y auditorías previas. |
-| [`app/__init__.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/__init__.py) | Fábrica de la aplicación Flask: inicializa `db` (SQLAlchemy), `migrate` (Alembic), `login` (Flask-Login) y registra el filtro Jinja2 `render_markdown`. | `Flask`, `Flask-SQLAlchemy`, `Flask-Migrate`, `Flask-Login` | Crea el objeto `app` central y enlaza los módulos de rutas y modelos. |
-| [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py) | Controlador principal. Expone todas las rutas HTTP, gestiona sesiones, valida formularios, interactúa con el ORM y coordina los servicios de IA y auditoría. | `Flask`, `Flask-Login`, `app.models`, `app.forms`, `app.utils`, `app.ai_service` | Actúa como mediador entre las solicitudes del navegador y la persistencia/servicios. |
-| [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py) | Modelos de datos del dominio deportivo: entidades con SQLAlchemy 2.0, herencia polimórfica JTI, validación criptográfica y relaciones relacionales. | `SQLAlchemy 2.0`, `Flask-Login`, `Werkzeug` | Define el esquema de la base de datos relacional y las entidades manipuladas por el ORM. |
-| [`app/forms.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py) | Formulario Data Transfer Objects (DTO) y validadores para login, registro, onboarding, diseño de rutinas, prescripciones y pesajes. | `Flask-WTF`, `WTForms` | Sanitiza y valida datos de entrada antes de que alcancen los controladores o la base de datos. |
-| [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py) | Utilidades transversales de seguridad (`@role_required`), bitácora forense (`registrar_log`) y renderizado Markdown seguro (`render_markdown`). | `functools`, `Flask-Login`, `MarkupSafe` | Provee mecanismos de seguridad RBAC, cumplimiento de auditoría y formato tipográfico. |
-| [`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py) | Orquestador de IA (CU17 / RF14): extracción de series/cargas, conexión HTTP a Google Gemini API v1beta y motor heurístico offline determinista. | `urllib.request`, `json`, `SQLAlchemy`, `app.models` | Analiza el historial de sobrecarga y genera diagnósticos y proyecciones de semanas. |
+| [`config.py`](config.py) | Configuración global, variables de entorno (`.env`, `.flaskenv`), secretos de sesión, URI de SQLite, log de auditoría y credenciales de Gemini. | `python-dotenv`, `os` | Es importado por `app/__init__.py` para inicializar el contexto de Flask y SQLAlchemy. |
+| [`trainerapp.py`](trainerapp.py) | Punto de entrada de la aplicación para el servidor WSGI y comandos CLI de administración (`flask seed`, `flask seed-log`). | `app`, `app.models`, `SQLAlchemy` | Permite la puesta en marcha inicial del sistema y el sembrado de ejercicios y auditorías previas. |
+| [`app/__init__.py`](app/__init__.py) | Fábrica de la aplicación Flask: inicializa `db` (SQLAlchemy), `migrate` (Alembic), `login` (Flask-Login) y registra el filtro Jinja2 `render_markdown`. | `Flask`, `Flask-SQLAlchemy`, `Flask-Migrate`, `Flask-Login` | Crea el objeto `app` central y enlaza los módulos de rutas y modelos. |
+| [`app/routes.py`](app/routes.py) | Controlador principal. Expone todas las rutas HTTP, gestiona sesiones, valida formularios, interactúa con el ORM y coordina los servicios de IA y auditoría. | `Flask`, `Flask-Login`, `app.models`, `app.forms`, `app.utils`, `app.ai_service` | Actúa como mediador entre las solicitudes del navegador y la persistencia/servicios. |
+| [`app/models.py`](app/models.py) | Modelos de datos del dominio deportivo: entidades con SQLAlchemy 2.0, herencia polimórfica JTI, validación criptográfica y relaciones relacionales. | `SQLAlchemy 2.0`, `Flask-Login`, `Werkzeug` | Define el esquema de la base de datos relacional y las entidades manipuladas por el ORM. |
+| [`app/forms.py`](app/forms.py) | Formulario Data Transfer Objects (DTO) y validadores para login, registro, onboarding, diseño de rutinas, prescripciones y pesajes. | `Flask-WTF`, `WTForms` | Sanitiza y valida datos de entrada antes de que alcancen los controladores o la base de datos. |
+| [`app/utils.py`](app/utils.py) | Utilidades transversales de seguridad (`@role_required`), bitácora forense (`registrar_log`) y renderizado Markdown seguro (`render_markdown`). | `functools`, `Flask-Login`, `MarkupSafe` | Provee mecanismos de seguridad RBAC, cumplimiento de auditoría y formato tipográfico. |
+| [`app/ai_service.py`](app/ai_service.py) | Orquestador de IA (CU17 / RF14): extracción de series/cargas, conexión HTTP a Google Gemini API v1beta y motor heurístico offline determinista. | `urllib.request`, `json`, `SQLAlchemy`, `app.models` | Analiza el historial de sobrecarga y genera diagnósticos y proyecciones de semanas. |
 | `app/templates/` | Plantillas Jinja2 organizadas por dominios (`auth/`, `trainer/`, `cliente/`, `errors/`, `base.html`). | `Jinja2`, `Bootstrap 5.3` | Renderiza la interfaz de usuario en el navegador del cliente o entrenador. |
 | `app/static/` | Recursos estáticos (estilos CSS propios, iconografía, scripts interactivos). | Navegador | Provee el aspecto visual y la ergonomía de sala de entrenamiento. |
 
@@ -424,11 +424,11 @@ El proyecto se estructura bajo el paquete modular `app/` complementado por archi
 
 ### 5.3. Capa de Enrutamiento y Controladores (Rutas)
 
-El módulo [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py) actúa como el núcleo del controlador MVC. Su diseño obedece al principio de **defensa en profundidad** mediante capas superpuestas de seguridad e intercepción:
+El módulo [`app/routes.py`](app/routes.py) actúa como el núcleo del controlador MVC. Su diseño obedece al principio de **defensa en profundidad** mediante capas superpuestas de seguridad e intercepción:
 
 1. **Autenticación obligatoria (`@login_required`)**: Garantiza que la petición provenga de un usuario autenticado con sesión válida. En caso contrario, redirige al endpoint `/login`.
-2. **Control de Acceso Basado en Roles ([`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7))**: Interceptor que comprueba `current_user.tipo`. Si un cliente intenta invocar rutas restringidas para entrenadores (o viceversa), aborta inmediatamente con un error **HTTP 403 Forbidden**.
-3. **Trazabilidad Automática ([`registrar_log`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20))**: Cada acción significativa (inicio de sesión, visualización de clientes, registro de cargas, generación de IA) registra un evento en el archivo de auditoría.
+2. **Control de Acceso Basado en Roles ([`@role_required`](app/utils.py#L7))**: Interceptor que comprueba `current_user.tipo`. Si un cliente intenta invocar rutas restringidas para entrenadores (o viceversa), aborta inmediatamente con un error **HTTP 403 Forbidden**.
+3. **Trazabilidad Automática ([`registrar_log`](app/utils.py#L20))**: Cada acción significativa (inicio de sesión, visualización de clientes, registro de cargas, generación de IA) registra un evento en el archivo de auditoría.
 
 #### Matriz de Rutas y Casos de Uso del Sistema
 
@@ -463,33 +463,33 @@ El módulo [`app/routes.py`](file:///home/jose/university/ingenieria-de-software
 
 ### 5.4. Capa de Modelos y Base de Datos (ORM)
 
-La persistencia de datos está implementada en [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py) con **SQLAlchemy 2.0**, aprovechando la sintaxis moderna con anotaciones de tipo `Mapped` y `mapped_column`.
+La persistencia de datos está implementada en [`app/models.py`](app/models.py) con **SQLAlchemy 2.0**, aprovechando la sintaxis moderna con anotaciones de tipo `Mapped` y `mapped_column`.
 
 #### 1. Herencia Polimórfica (Joined Table Inheritance - JTI)
 Para modelar los roles de usuario sin duplicar credenciales ni comprometer la normalización, se implementó JTI:
-- **[`Usuario`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L11)**: Tabla base `usuario` con clave primaria `id`, columna discriminadora `tipo` (`'entrenador'` o `'cliente'`), nombre de usuario único con collation insensible a mayúsculas (`collation="NOCASE"`) y hash seguro de contraseña.
-- **[`Entrenador`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L39)**: Tabla hija `entrenador`. Su clave primaria `id` es simultáneamente clave foránea referenciando a `usuario.id`. Almacena el atributo exclusivo `codigo_entrenador` (generado criptográficamente con `secrets.choice`).
-- **[`Cliente`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L61)**: Tabla hija `cliente`. Su clave primaria `id` referencia a `usuario.id`. Vincula obligatoriamente a un entrenador (`entrenador_id`), almacena métricas antropométricas (`peso`, `peso_objetivo`), metas (`meta`, `dias_semana_meta`) y nivel de entrenamiento (`nivel_experiencia`).
+- **[`Usuario`](app/models.py#L11)**: Tabla base `usuario` con clave primaria `id`, columna discriminadora `tipo` (`'entrenador'` o `'cliente'`), nombre de usuario único con collation insensible a mayúsculas (`collation="NOCASE"`) y hash seguro de contraseña.
+- **[`Entrenador`](app/models.py#L39)**: Tabla hija `entrenador`. Su clave primaria `id` es simultáneamente clave foránea referenciando a `usuario.id`. Almacena el atributo exclusivo `codigo_entrenador` (generado criptográficamente con `secrets.choice`).
+- **[`Cliente`](app/models.py#L61)**: Tabla hija `cliente`. Su clave primaria `id` referencia a `usuario.id`. Vincula obligatoriamente a un entrenador (`entrenador_id`), almacena métricas antropométricas (`peso`, `peso_objetivo`), metas (`meta`, `dias_semana_meta`) y nivel de entrenamiento (`nivel_experiencia`).
 
 #### 2. Modelado y Descomposición del Dominio Deportivo
 El dominio se modeló distinguiendo con precisión la **planificación teórica (prescripción)** de la **ejecución real (sala de pesas)**:
 
 - **Eje de Prescripción (Diseño del Entrenador)**:
   $$\text{Rutina (1)} \xrightarrow{\text{contiene}} \text{Sesiones (N)} \xrightarrow{\text{prescribe}} \text{PrescripcionEjercicioSesion (N)} \xrightarrow{\text{refiere}} \text{Ejercicio (1)}$$
-  - [`Rutina`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L104): Bloque global diseñado para una meta y nivel.
-  - [`Sesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L118): Agrupación por días de la semana (ej. Día 1, Día 2).
-  - [`PrescripcionEjercicioSesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L133): Especificación atómica de series objetivo, repeticiones (ej. "8-10"), descanso en segundos, intensidad (ej. "@ RPE 8" o "80% 1RM") y notas técnicas.
-  - [`Ejercicio`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L87): Catálogo de movimientos, categorizados por grupo muscular y patrón de movimiento (Empuje, Tracción, Sentadilla, Bisagra de Cadera). Si `entrenador_id` es `NULL`, es un ejercicio canónico global.
+  - [`Rutina`](app/models.py#L104): Bloque global diseñado para una meta y nivel.
+  - [`Sesion`](app/models.py#L118): Agrupación por días de la semana (ej. Día 1, Día 2).
+  - [`PrescripcionEjercicioSesion`](app/models.py#L133): Especificación atómica de series objetivo, repeticiones (ej. "8-10"), descanso en segundos, intensidad (ej. "@ RPE 8" o "80% 1RM") y notas técnicas.
+  - [`Ejercicio`](app/models.py#L87): Catálogo de movimientos, categorizados por grupo muscular y patrón de movimiento (Empuje, Tracción, Sentadilla, Bisagra de Cadera). Si `entrenador_id` es `NULL`, es un ejercicio canónico global.
 
 - **Eje de Ejecución y Trazabilidad (Registro del Alumno)**:
   $$\text{RegistroSesionEntrenamiento (1)} \xrightarrow{\text{detalla}} \text{RegistroEjercicioSesion (N)} \xrightarrow{\text{descompone}} \text{RegistroSerie (N)}$$
-  - [`RegistroSesionEntrenamiento`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L153): Captura la fecha, duración en minutos y estado de ánimo del alumno.
-  - [`RegistroEjercicioSesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L170): Registra notas cualitativas de fatiga o ejecución por ejercicio.
-  - [`RegistroSerie`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L184): Datos atómicos de cada serie ejecutada: `numero_serie`, `peso_usado` (en kg) y `repeticiones_logradas`. Esta granularidad es la que permite calcular la sobrecarga progresiva ($\Delta kg$) con exactitud matemática.
+  - [`RegistroSesionEntrenamiento`](app/models.py#L153): Captura la fecha, duración en minutos y estado de ánimo del alumno.
+  - [`RegistroEjercicioSesion`](app/models.py#L170): Registra notas cualitativas de fatiga o ejecución por ejercicio.
+  - [`RegistroSerie`](app/models.py#L184): Datos atómicos de cada serie ejecutada: `numero_serie`, `peso_usado` (en kg) y `repeticiones_logradas`. Esta granularidad es la que permite calcular la sobrecarga progresiva ($\Delta kg$) con exactitud matemática.
 
 - **Eje de Evolución Física y Comunicación**:
-  - [`RegistroPesoCorporal`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L197): Historial de pesajes con fecha y valor en kilogramos para alimentar el semáforo de metas y la tasa de pérdida/ganancia de peso.
-  - [`Recomendacion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L209): Entidad persistente que almacena los diagnósticos redactados por el entrenador o generados por el módulo de IA, con marca temporal y estado de lectura (`leido`).
+  - [`RegistroPesoCorporal`](app/models.py#L197): Historial de pesajes con fecha y valor en kilogramos para alimentar el semáforo de metas y la tasa de pérdida/ganancia de peso.
+  - [`Recomendacion`](app/models.py#L209): Entidad persistente que almacena los diagnósticos redactados por el entrenador o generados por el módulo de IA, con marca temporal y estado de lectura (`leido`).
 
 #### 3. Integridad Referencial y Optimización
 - **Eliminación en Cascada**: Configurada a nivel de modelo ORM (`cascade='all, delete-orphan'`) y a nivel de motor SQL relacional (`ondelete='CASCADE'`). Al eliminar una rutina, se eliminan ordenadamente sus sesiones y prescripciones sin dejar registros huérfanos.
@@ -503,19 +503,19 @@ El dominio se modeló distinguiendo con precisión la **planificación teórica 
 La interconexión de todas las capas del sistema se aprecia con máxima claridad durante la ejecución del **Caso de Uso CU17 (RF14 - Proyecciones y Sugerencias de IA)**:
 
 1. **Recepción en Ruta y Control de Acceso**:
-   El usuario dispara la solicitud vía `POST /cliente/generar-recomendacion-ia` (o `/trainer/...`). La ruta comprueba el rol con `@role_required` e invoca a [`generar_recomendacion_ia(cliente_id)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L360) en [`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py).
+   El usuario dispara la solicitud vía `POST /cliente/generar-recomendacion-ia` (o `/trainer/...`). La ruta comprueba el rol con `@role_required` e invoca a [`generar_recomendacion_ia(cliente_id)`](app/ai_service.py#L360) en [`app/ai_service.py`](app/ai_service.py).
 2. **Extracción y Consulta de Dominio (ORM)**:
-   [`ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py) ejecuta [`recopilar_datos_entrenamiento(cliente)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L11), la cual formula consultas `sa.select` mediante SQLAlchemy 2.0 sobre [`RegistroSesionEntrenamiento`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L153), [`RegistroEjercicioSesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L170), [`RegistroSerie`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L184) y [`RegistroPesoCorporal`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L197).
+   [`ai_service.py`](app/ai_service.py) ejecuta [`recopilar_datos_entrenamiento(cliente)`](app/ai_service.py#L11), la cual formula consultas `sa.select` mediante SQLAlchemy 2.0 sobre [`RegistroSesionEntrenamiento`](app/models.py#L153), [`RegistroEjercicioSesion`](app/models.py#L170), [`RegistroSerie`](app/models.py#L184) y [`RegistroPesoCorporal`](app/models.py#L197).
 3. **Procesamiento de Métricas y Reducción Cuantitativa**:
    El servicio compila deltas de fuerza $\Delta \text{kg} = \text{carga máxima} - \text{primera carga}$, adherencia semanal y variación ponderal, construyendo un prompt sintetizado (≤ 140 palabras) para minimizar drásticamente el consumo de tokens.
 4. **Inferencia con Fallover Multi-Modelo o Respaldo Heurístico**:
    Se envía la petición HTTP a la API v1beta de **Google Gemini** con conmutación inteligente (`gemini-3.5-flash-lite` ➔ `gemini-flash-lite-latest` ➔ `gemini-3.8-flash`). Si no hay conexión o no existe API key, conmuta inmediatamente al motor heurístico determinista local.
 5. **Persistencia Transaccional en Base de Datos**:
-   Al retornar el diagnóstico, el controlador instancía un nuevo objeto [`Recomendacion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L209) enlazado a la clave foránea del cliente y del entrenador, ejecutando `db.session.add(nueva_rec)` y `db.session.commit()`.
+   Al retornar el diagnóstico, el controlador instancía un nuevo objeto [`Recomendacion`](app/models.py#L209) enlazado a la clave foránea del cliente y del entrenador, ejecutando `db.session.add(nueva_rec)` y `db.session.commit()`.
 6. **Auditoría Continua**:
-   Se asienta la transacción en [`auditoria_log.txt`](file:///home/jose/university/ingenieria-de-software/proyecto/auditoria_log.txt) vía [`registrar_log()`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20).
+   Se asienta la transacción en [`auditoria_log.txt`](auditoria_log.txt) vía [`registrar_log()`](app/utils.py#L20).
 7. **Presentación Visual**:
-   El cliente es redirigido a `/cliente/mi-progreso`, donde la plantilla Jinja2 compila el markdown a HTML seguro mediante el filtro [`render_markdown`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L53), presentándolo estilizado junto al semáforo de metas.
+   El cliente es redirigido a `/cliente/mi-progreso`, donde la plantilla Jinja2 compila el markdown a HTML seguro mediante el filtro [`render_markdown`](app/utils.py#L53), presentándolo estilizado junto al semáforo de metas.
 
 #### 🔄 Diagrama de Secuencia de la Interacción Integral
 
@@ -617,19 +617,19 @@ mindmap
 La abstracción permite representar entidades y procesos complejos del mundo real en modelos computacionales concisos, exponiendo únicamente las interfaces y datos relevantes para el negocio deportivo y ocultando la complejidad accesoria. En TrainerApp, el dominio se abstrae en tres ejes ortogonales:
 
 - **Eje de Prescripción Teórica (Diseño y Metodología del Entrenador)**:
-  - [`Rutina`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L104): Abstrae el macrociclo de entrenamiento, caracterizado por una meta física (`Hipertrofia` o `Fuerza`) y un nivel de experiencia (`Principiante`, `Intermedio`, `Avanzado`).
-  - [`Sesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L118): Abstrae la división semanal del plan (microciclo) asociando un nombre (ej. "Día 1: Torso") a un día específico de la semana (`1` a `7`).
-  - [`PrescripcionEjercicioSesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L133): Abstrae la prescripción técnica de cada ejercicio: número de series objetivo, rango o número de repeticiones (ej. `"8-10"` o `"5"`), pausa de descanso en segundos, indicador de intensidad (ej. `"@ RPE 8"` o `"80% 1RM"`) y notas técnicas de ejecución.
-  - [`Ejercicio`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L87): Abstrae el movimiento físico clasificándolo por grupo muscular anatómico (`Pecho`, `Espalda`, `Piernas`, etc.) y patrón funcional de movimiento (`Empuje`, `Tracción`, `Sentadilla`, `Bisagra de Cadera`, `Aislamiento / Core`).
+  - [`Rutina`](app/models.py#L104): Abstrae el macrociclo de entrenamiento, caracterizado por una meta física (`Hipertrofia` o `Fuerza`) y un nivel de experiencia (`Principiante`, `Intermedio`, `Avanzado`).
+  - [`Sesion`](app/models.py#L118): Abstrae la división semanal del plan (microciclo) asociando un nombre (ej. "Día 1: Torso") a un día específico de la semana (`1` a `7`).
+  - [`PrescripcionEjercicioSesion`](app/models.py#L133): Abstrae la prescripción técnica de cada ejercicio: número de series objetivo, rango o número de repeticiones (ej. `"8-10"` o `"5"`), pausa de descanso en segundos, indicador de intensidad (ej. `"@ RPE 8"` o `"80% 1RM"`) y notas técnicas de ejecución.
+  - [`Ejercicio`](app/models.py#L87): Abstrae el movimiento físico clasificándolo por grupo muscular anatómico (`Pecho`, `Espalda`, `Piernas`, etc.) y patrón funcional de movimiento (`Empuje`, `Tracción`, `Sentadilla`, `Bisagra de Cadera`, `Aislamiento / Core`).
 
 - **Eje de Ejecución Empírica y Trazabilidad (Sala de Pesas)**:
-  - [`RegistroSesionEntrenamiento`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L153): Abstrae la experiencia real del alumno al entrenar en el gimnasio, capturando la fecha de realización, duración efectiva en minutos y estado anímico percibido (`estado_animo`).
-  - [`RegistroEjercicioSesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L170): Abstrae el rendimiento cualitativo en un ejercicio particular dentro de la sesión, incluyendo notas de fatiga técnica.
-  - [`RegistroSerie`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L184): Abstrae la unidad atómica de esfuerzo mecánico: número ordinal de serie (`numero_serie`), kilos reales levantados (`peso_usado`) y repeticiones completadas (`repeticiones_logradas`). Esta granularidad atómica es la que hace posible calcular matemáticamente el diferencial de sobrecarga progresiva ($\Delta kg$).
+  - [`RegistroSesionEntrenamiento`](app/models.py#L153): Abstrae la experiencia real del alumno al entrenar en el gimnasio, capturando la fecha de realización, duración efectiva en minutos y estado anímico percibido (`estado_animo`).
+  - [`RegistroEjercicioSesion`](app/models.py#L170): Abstrae el rendimiento cualitativo en un ejercicio particular dentro de la sesión, incluyendo notas de fatiga técnica.
+  - [`RegistroSerie`](app/models.py#L184): Abstrae la unidad atómica de esfuerzo mecánico: número ordinal de serie (`numero_serie`), kilos reales levantados (`peso_usado`) y repeticiones completadas (`repeticiones_logradas`). Esta granularidad atómica es la que hace posible calcular matemáticamente el diferencial de sobrecarga progresiva ($\Delta kg$).
 
 - **Eje Antropométrico y Retroalimentación**:
-  - [`RegistroPesoCorporal`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L197): Abstrae la evolución física del cliente mediante pesajes periódicos con marca temporal, alimentando el semáforo de metas corporales.
-  - [`Recomendacion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L209): Abstrae el canal de asesoramiento formal (diagnósticos de sobrecarga, directrices de recuperación y proyecciones de tiempo estimado generadas por el entrenador o el motor de IA).
+  - [`RegistroPesoCorporal`](app/models.py#L197): Abstrae la evolución física del cliente mediante pesajes periódicos con marca temporal, alimentando el semáforo de metas corporales.
+  - [`Recomendacion`](app/models.py#L209): Abstrae el canal de asesoramiento formal (diagnósticos de sobrecarga, directrices de recuperación y proyecciones de tiempo estimado generadas por el entrenador o el motor de IA).
 
 ---
 
@@ -638,7 +638,7 @@ La abstracción permite representar entidades y procesos complejos del mundo rea
 El encapsulamiento agrupa el estado interno de los objetos y los métodos que operan sobre ellos, protegiendo la integridad de los datos frente a accesos indebidos o modificaciones inconsistentes desde el exterior:
 
 - **Seguridad Criptográfica y Gestión de Credenciales**:
-  - En la clase base [`Usuario`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L11), el atributo `contraseña` almacena exclusivamente una cadena hash. Las contraseñas en texto plano nunca se conservan ni se exponen.
+  - En la clase base [`Usuario`](app/models.py#L11), el atributo `contraseña` almacena exclusivamente una cadena hash. Las contraseñas en texto plano nunca se conservan ni se exponen.
   - La lógica de hashing y validación se encapsula en dos métodos especializados:
     ```python
     def guardar_contraseña(self, contraseña: str) -> None:
@@ -647,11 +647,11 @@ El encapsulamiento agrupa el estado interno de los objetos y los métodos que op
     def chequear_contraseña(self, contraseña: str) -> bool:
         return check_password_hash(self.contraseña, contraseña)
     ```
-    - [`guardar_contraseña()`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L31) encapsula el algoritmo de derivación de claves PBKDF2:SHA256 con salt criptográfico de Werkzeug.
-    - [`chequear_contraseña()`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L35) encapsula la comparación segura en tiempo constante, mitigando ataques de canal lateral (*timing attacks*). Ningún controlador ni módulo externo necesita conocer la infraestructura criptográfica subyacente.
+    - [`guardar_contraseña()`](app/models.py#L31) encapsula el algoritmo de derivación de claves PBKDF2:SHA256 con salt criptográfico de Werkzeug.
+    - [`chequear_contraseña()`](app/models.py#L35) encapsula la comparación segura en tiempo constante, mitigando ataques de canal lateral (*timing attacks*). Ningún controlador ni módulo externo necesita conocer la infraestructura criptográfica subyacente.
 
 - **Generación Segura de Identificadores de Negocio**:
-  - En la subclase [`Entrenador`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L39), el método [`generar_codigo_entrenador()`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L55) encapsula la creación de tokens de vinculación institucional:
+  - En la subclase [`Entrenador`](app/models.py#L39), el método [`generar_codigo_entrenador()`](app/models.py#L55) encapsula la creación de tokens de vinculación institucional:
     ```python
     def generar_codigo_entrenador(self) -> None:
         longitud = 6
@@ -662,13 +662,13 @@ El encapsulamiento agrupa el estado interno de los objetos y los métodos que op
     - Utiliza `secrets.choice`, un generador de números pseudoaleatorios criptográficamente seguro (CSPRNG), encapsulando la entropía y asegurando que los códigos resultantes (`ENT-XXXXXX`) sean impredecibles e inmunes a colisiones.
 
 - **Encapsulamiento de Validaciones en Objetos de Formulario (DTO)**:
-  - En [`app/forms.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py), las reglas de negocio e invariantes de datos se encapsulan dentro de los métodos `validate_<nombre_campo>`:
-    - [`SignupForm.validate_username`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L22): Encapsula la verificación de unicidad en base de datos insensible a mayúsculas/minúsculas.
-    - [`TrainerCodeForm.validate_codigo_entrenador`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L31): Encapsula la consulta relacional para confirmar la existencia del entrenador antes de habilitar el proceso de registro del cliente.
-    - [`ExerciseForm.validate_nombre`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L54) y [`RoutineForm.validate_nombre`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L75): Encapsulan las comprobaciones de colisión de nombres en el catálogo personal del entrenador y catálogo canónico.
+  - En [`app/forms.py`](app/forms.py), las reglas de negocio e invariantes de datos se encapsulan dentro de los métodos `validate_<nombre_campo>`:
+    - [`SignupForm.validate_username`](app/forms.py#L22): Encapsula la verificación de unicidad en base de datos insensible a mayúsculas/minúsculas.
+    - [`TrainerCodeForm.validate_codigo_entrenador`](app/forms.py#L31): Encapsula la consulta relacional para confirmar la existencia del entrenador antes de habilitar el proceso de registro del cliente.
+    - [`ExerciseForm.validate_nombre`](app/forms.py#L54) y [`RoutineForm.validate_nombre`](app/forms.py#L75): Encapsulan las comprobaciones de colisión de nombres en el catálogo personal del entrenador y catálogo canónico.
 
 - **Encapsulamiento de Integridad Relacional y Ciclo de Vida**:
-  - Las clases de [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py) encapsulan la integridad referencial y las dependencias de eliminación mediante `cascade='all, delete-orphan'` en el ORM y `ondelete='CASCADE'` en el motor relacional. Al eliminar una `Rutina` o `Sesion`, los objetos hijos dependientes se limpian ordenadamente sin requerir lógica manual en las rutas.
+  - Las clases de [`app/models.py`](app/models.py) encapsulan la integridad referencial y las dependencias de eliminación mediante `cascade='all, delete-orphan'` en el ORM y `ondelete='CASCADE'` en el motor relacional. Al eliminar una `Rutina` o `Sesion`, los objetos hijos dependientes se limpian ordenadamente sin requerir lógica manual en las rutas.
 
 ---
 
@@ -677,18 +677,18 @@ El encapsulamiento agrupa el estado interno de los objetos y los métodos que op
 La herencia se aplica para reutilizar código, modelar relaciones taxonómicas ("es un") y desacoplar responsabilidades entre entidades generales y especializadas:
 
 - **Herencia Polimórfica Relacional (Joined Table Inheritance - JTI)**:
-  - **Clase Base**: [`Usuario(UserMixin, db.Model)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L11). Centraliza la identidad de acceso al sistema: `id`, `nombre_usuario`, `contraseña`, la columna discriminadora `tipo` (`String(10)`), y los métodos criptográficos comunes.
-  - **Subclase Especializada**: [`Entrenador(Usuario)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L39). Hereda la infraestructura de autenticación y extiende el modelo con atributos exclusivos del rol preparador: `codigo_entrenador`, el método `generar_codigo_entrenador()`, y las relaciones relacionales con `clientes`, `rutinas` y `recomendaciones_enviadas`.
-  - **Subclase Especializada**: [`Cliente(Usuario)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L61). Hereda de `Usuario` y añade los atributos antropométricos y deportivos del atleta: `peso`, `peso_objetivo`, `dias_semana_meta`, `meta`, `nivel_experiencia`, la clave foránea obligatoria `entrenador_id`, `rutina_id`, `historial_peso` y `recomendaciones`.
+  - **Clase Base**: [`Usuario(UserMixin, db.Model)`](app/models.py#L11). Centraliza la identidad de acceso al sistema: `id`, `nombre_usuario`, `contraseña`, la columna discriminadora `tipo` (`String(10)`), y los métodos criptográficos comunes.
+  - **Subclase Especializada**: [`Entrenador(Usuario)`](app/models.py#L39). Hereda la infraestructura de autenticación y extiende el modelo con atributos exclusivos del rol preparador: `codigo_entrenador`, el método `generar_codigo_entrenador()`, y las relaciones relacionales con `clientes`, `rutinas` y `recomendaciones_enviadas`.
+  - **Subclase Especializada**: [`Cliente(Usuario)`](app/models.py#L61). Hereda de `Usuario` y añade los atributos antropométricos y deportivos del atleta: `peso`, `peso_objetivo`, `dias_semana_meta`, `meta`, `nivel_experiencia`, la clave foránea obligatoria `entrenador_id`, `rutina_id`, `historial_peso` y `recomendaciones`.
   - **Ventaja de JTI sobre otros patrones de persistencia**: A diferencia de *Single Table Inheritance* (STI) —que concentra todos los campos en una sola tabla produciendo columnas dispersas repletas de valores nulos—, JTI crea tablas normalizadas en tercera forma normal (3FN) vinculadas por la clave foránea de la clave primaria (`usuario.id == entrenador.id == cliente.id`), garantizando integridad y legibilidad.
 
 - **Herencia Múltiple y Mixins (Composición de Comportamientos)**:
-  - La clase [`Usuario`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L11) hereda concurrentemente de dos jerarquías:
+  - La clase [`Usuario`](app/models.py#L11) hereda concurrentemente de dos jerarquías:
     1. `flask_sqlalchemy.model.Model` (`db.Model`): Aporta la persistencia declarativa y el mapeo objeto-relacional.
     2. `flask_login.UserMixin`: Provee de forma transparente los contratos de interfaz requeridos por el gestor de sesiones de Flask (`is_authenticated`, `is_active`, `is_anonymous` y `get_id()`).
 
 - **Herencia en la Capa de Formularios y Validación**:
-  - Todas las clases en [`app/forms.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py) (`LoginForm`, `SignupForm`, `ExerciseForm`, `PrescriptionForm`, etc.) heredan de `FlaskForm` (`flask_wtf`), heredando mecanismos estandarizados de validación de campos, protección contra ataques CSRF y recolección de errores en la interfaz.
+  - Todas las clases en [`app/forms.py`](app/forms.py) (`LoginForm`, `SignupForm`, `ExerciseForm`, `PrescriptionForm`, etc.) heredan de `FlaskForm` (`flask_wtf`), heredando mecanismos estandarizados de validación de campos, protección contra ataques CSRF y recolección de errores en la interfaz.
 
 ---
 
@@ -702,8 +702,8 @@ El polimorfismo permite que objetos de diferentes clases respondan a una misma i
     ```python
     usuario = db.session.scalar(sa.select(Usuario).where(Usuario.nombre_usuario == username))
     ```
-    SQLAlchemy evalúa en tiempo de ejecución el valor del discriminador `tipo` ('entrenador' o 'cliente') e instancía automáticamente un objeto de la subclase concreta ([`Entrenador`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L39) o [`Cliente`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L61)).
-  - En la función de recarga de sesión [`cargar_usuario(id)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L226):
+    SQLAlchemy evalúa en tiempo de ejecución el valor del discriminador `tipo` ('entrenador' o 'cliente') e instancía automáticamente un objeto de la subclase concreta ([`Entrenador`](app/models.py#L39) o [`Cliente`](app/models.py#L61)).
+  - En la función de recarga de sesión [`cargar_usuario(id)`](app/models.py#L226):
     ```python
     @login.user_loader
     def cargar_usuario(id):
@@ -712,7 +712,7 @@ El polimorfismo permite que objetos de diferentes clases respondan a una misma i
     La variable global `current_user` contiene polimórficamente la instancia correspondiente. Si el usuario logueado es un entrenador, se tiene acceso inmediato a `current_user.codigo_entrenador` y a `current_user.clientes` sin requerir casts manuales.
 
 - **Despacho Polimórfico en Controladores**:
-  - En la ruta principal [`home()`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py#L20), el sistema resuelve la experiencia de navegación de forma polimórfica según el tipo de instancia:
+  - En la ruta principal [`home()`](app/routes.py#L20), el sistema resuelve la experiencia de navegación de forma polimórfica según el tipo de instancia:
     ```python
     @app.route('/')
     def home():
@@ -726,7 +726,7 @@ El polimorfismo permite que objetos de diferentes clases respondan a una misma i
     El punto de entrada es uniforme (`/`), pero el comportamiento dinámico se adapta a la naturaleza de la entidad.
 
 - **Sobrescritura de Métodos (`Method Overriding`)**:
-  - Sobrescritura de `__repr__()` en [`Usuario`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L27) para retornar `<Usuario: {nombre_usuario}>`, ofreciendo representaciones textuales especializadas para trazabilidad y depuración.
+  - Sobrescritura de `__repr__()` en [`Usuario`](app/models.py#L27) para retornar `<Usuario: {nombre_usuario}>`, ofreciendo representaciones textuales especializadas para trazabilidad y depuración.
 
 ---
 
@@ -772,21 +772,21 @@ flowchart LR
 
 ##### **MVC (Modelo-Vista-Controlador)**
 TrainerApp adopta una arquitectura desacoplada basada en MVC:
-- **Modelo (Model)**: Definido en [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py). Centraliza las entidades de negocio deportivas, relaciones relacionales, herencia polimórfica y restricciones de integridad.
-- **Vista (View)**: Implementada en el directorio [`app/templates/`](file:///home/jose/university/ingenieria-de-software/proyecto/app/templates/) mediante el motor de plantillas **Jinja2** y **Bootstrap 5.3**. Separa la capa visual, incorporando el filtro personalizado [`render_markdown`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L53) para formatear diagnósticos de IA.
-- **Controlador (Controller)**: Centralizado en [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py). Recibe las peticiones HTTP, coordina los interceptores de seguridad, valida datos de entrada y delega la ejecución hacia los modelos y servicios de IA y auditoría.
+- **Modelo (Model)**: Definido en [`app/models.py`](app/models.py). Centraliza las entidades de negocio deportivas, relaciones relacionales, herencia polimórfica y restricciones de integridad.
+- **Vista (View)**: Implementada en el directorio [`app/templates/`](app/templates/) mediante el motor de plantillas **Jinja2** y **Bootstrap 5.3**. Separa la capa visual, incorporando el filtro personalizado [`render_markdown`](app/utils.py#L53) para formatear diagnósticos de IA.
+- **Controlador (Controller)**: Centralizado en [`app/routes.py`](app/routes.py). Recibe las peticiones HTTP, coordina los interceptores de seguridad, valida datos de entrada y delega la ejecución hacia los modelos y servicios de IA y auditoría.
 
 ---
 
 #### 2. Patrones Creacionales
 
 ##### **Application Factory & Centralized Configuration**
-- **Ubicación**: [`app/__init__.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/__init__.py) y [`config.py`](file:///home/jose/university/ingenieria-de-software/proyecto/config.py).
+- **Ubicación**: [`app/__init__.py`](app/__init__.py) y [`config.py`](config.py).
 - **Problema que resuelve**: Acoplamiento global de instancias y dificultad para inicializar extensiones con distintas configuraciones de entorno.
 - **Implementación**: La configuración se aísla en la clase `Config` (leyendo variables de `.env`). En `app/__init__.py`, se construye la instancia `Flask(__name__)` y se vinculan las extensiones del ecosistema (`db = SQLAlchemy(app)`, `migrate = Migrate(app, db)`, `login = LoginManager(app)`), garantizando un ensamblado limpio y reproducible del contexto de la aplicación.
 
 ##### **Polymorphic Factory (Factoría Polimórfica de Dominio)**
-- **Ubicación**: [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py) (`Usuario`, `Entrenador`, `Cliente`).
+- **Ubicación**: [`app/models.py`](app/models.py) (`Usuario`, `Entrenador`, `Cliente`).
 - **Problema que resuelve**: La necesidad de instanciar diferentes subtipos de usuario a partir de un único punto de consulta en la base de datos sin incurrir en estructuras de control condicionales redundantes.
 - **Implementación**: Configurada mediante `__mapper_args__` con `polymorphic_on="tipo"`. El ORM actúa como una factoría polimórfica que devuelve dinámicamente instancias de `Entrenador` o `Cliente` a partir del tipo registrado en la base de datos relacional.
 
@@ -795,7 +795,7 @@ TrainerApp adopta una arquitectura desacoplada basada en MVC:
 #### 3. Patrones Estructurales
 
 ##### **Decorator Pattern (Decorador)**
-- **Ubicación**: [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7) ([`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7)), `flask_login` (`@login_required`), `flask` (`@app.route`) y [`trainerapp.py`](file:///home/jose/university/ingenieria-de-software/proyecto/trainerapp.py#L39) (`@app.cli.command`).
+- **Ubicación**: [`app/utils.py`](app/utils.py#L7) ([`@role_required`](app/utils.py#L7)), `flask_login` (`@login_required`), `flask` (`@app.route`) y [`trainerapp.py`](trainerapp.py#L39) (`@app.cli.command`).
 - **Problema que resuelve**: Añadir responsabilidades transversales (autenticación obligatoria, control de acceso basado en roles RBAC y comandos de consola) a los controladores sin modificar su lógica interna, respetando el **Principio Abierto/Cerrado (OCP)**.
 - **Implementación**:
   ```python
@@ -812,10 +812,10 @@ TrainerApp adopta una arquitectura desacoplada basada en MVC:
           return decorated_function
       return decorator
   ```
-  - [`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7) intercepta en tiempo de ejecución las funciones de enrutamiento. Si un cliente intenta invocar rutas administrativas de entrenador (como `/clientes` o `/trainer/rutinas`), aborta inmediatamente emitiendo un código de error **HTTP 403 Forbidden**.
+  - [`@role_required`](app/utils.py#L7) intercepta en tiempo de ejecución las funciones de enrutamiento. Si un cliente intenta invocar rutas administrativas de entrenador (como `/clientes` o `/trainer/rutinas`), aborta inmediatamente emitiendo un código de error **HTTP 403 Forbidden**.
 
 ##### **Adapter Pattern (Adaptador de Formato y Presentación)**
-- **Ubicación**: [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L53) ([`render_markdown`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L53)) y [`app/__init__.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/__init__.py#L15).
+- **Ubicación**: [`app/utils.py`](app/utils.py#L53) ([`render_markdown`](app/utils.py#L53)) y [`app/__init__.py`](app/__init__.py#L15).
 - **Problema que resuelve**: Adaptar el texto estructurado en Markdown puro retornado por los motores de IA a marcado HTML semántico enriquecido con clases visuales de Bootstrap 5.3, previniendo riesgos de inyección de código (XSS).
 - **Implementación**: `render_markdown(text)` procesa encabezados `###`, `##`, listas desordenadas `- / •`, listas ordenadas numéricas y negritas `**`, traduciéndolos a etiquetas `<h6 class="text-primary">`, `<ul class="ps-3">`, `<strong>` y sanitizándolos con `markupsafe.Markup(escape(text))`. El filtro se registra en Jinja2 (`app.jinja_env.filters['render_markdown']`), permitiendo una adaptación transparente en las vistas.
 
@@ -824,34 +824,34 @@ TrainerApp adopta una arquitectura desacoplada basada en MVC:
 #### 4. Patrones de Comportamiento
 
 ##### **Strategy Pattern con Respaldo de Alta Disponibilidad (Estrategia y Fallback)**
-- **Ubicación**: [`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L360) ([`generar_recomendacion_ia`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L360)).
+- **Ubicación**: [`app/ai_service.py`](app/ai_service.py#L360) ([`generar_recomendacion_ia`](app/ai_service.py#L360)).
 - **Problema que resuelve**: Garantizar que la generación de diagnósticos deportivos y cálculo de tiempo estimado (CU17 / RF14) nunca falle ante ausencia de conexión a internet, agotamiento de cuotas de API o falta de credenciales externas.
 - **Implementación**:
-  El orquestador [`generar_recomendacion_ia(cliente_id)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L360) encapsula dos estrategias de inferencia con la misma interfaz de retorno `tuple[str, str]` (título y mensaje):
-  1. **Estrategia A (Cloud LLM Strategy)**: Si existe `GEMINI_API_KEY` y conexión, invoca Google Gemini REST API v1beta ([`_invocar_gemini_api`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L141)), ejecutando conmutación en cascada multi-modelo (`gemini-3.5-flash-lite` ➔ `gemini-flash-lite-latest` ➔ `gemini-3.8-flash`).
-  2. **Estrategia B (Local Deterministic Expert Strategy)**: Si no hay clave, no hay internet o la API externa falla con códigos HTTP 429/503, conmuta instantáneamente al motor heurístico determinista local ([`_generar_recomendacion_heuristica`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L247)), el cual calcula analíticamente sobrecarga progresiva ($\Delta kg$) y semanas necesarias para la meta según tasas fisiológicas reales.
-  - Para el controlador [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py), la estrategia seleccionada es completamente transparente, logrando alta disponibilidad (RNF de Resiliencia).
+  El orquestador [`generar_recomendacion_ia(cliente_id)`](app/ai_service.py#L360) encapsula dos estrategias de inferencia con la misma interfaz de retorno `tuple[str, str]` (título y mensaje):
+  1. **Estrategia A (Cloud LLM Strategy)**: Si existe `GEMINI_API_KEY` y conexión, invoca Google Gemini REST API v1beta ([`_invocar_gemini_api`](app/ai_service.py#L141)), ejecutando conmutación en cascada multi-modelo (`gemini-3.5-flash-lite` ➔ `gemini-flash-lite-latest` ➔ `gemini-3.8-flash`).
+  2. **Estrategia B (Local Deterministic Expert Strategy)**: Si no hay clave, no hay internet o la API externa falla con códigos HTTP 429/503, conmuta instantáneamente al motor heurístico determinista local ([`_generar_recomendacion_heuristica`](app/ai_service.py#L247)), el cual calcula analíticamente sobrecarga progresiva ($\Delta kg$) y semanas necesarias para la meta según tasas fisiológicas reales.
+  - Para el controlador [`app/routes.py`](app/routes.py), la estrategia seleccionada es completamente transparente, logrando alta disponibilidad (RNF de Resiliencia).
 
 ##### **Data Transfer Object (DTO) / Form Object**
-- **Ubicación**: [`app/forms.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py).
+- **Ubicación**: [`app/forms.py`](app/forms.py).
 - **Problema que resuelve**: Evitar la manipulación directa de diccionarios planos no tipados provenientes de la petición HTTP (`request.form`), previniendo inyecciones de datos no validados hacia la base de datos.
-- **Implementación**: Clases como [`LoginForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L9), [`SignupForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L15), [`TrainerCodeForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L27), [`ClientProfileForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L36), [`ExerciseForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L48), [`PrescriptionForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L86) y [`RecomendacionForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L95) encapsulan la transferencia de datos entre el navegador y el servidor, validando tipos, rangos numéricos y tokens CSRF antes de que interactúen con el modelo de dominio.
+- **Implementación**: Clases como [`LoginForm`](app/forms.py#L9), [`SignupForm`](app/forms.py#L15), [`TrainerCodeForm`](app/forms.py#L27), [`ClientProfileForm`](app/forms.py#L36), [`ExerciseForm`](app/forms.py#L48), [`PrescriptionForm`](app/forms.py#L86) y [`RecomendacionForm`](app/forms.py#L95) encapsulan la transferencia de datos entre el navegador y el servidor, validando tipos, rangos numéricos y tokens CSRF antes de que interactúen con el modelo de dominio.
 
 ##### **Unit of Work (Unidad de Trabajo) & Identity Map**
-- **Ubicación**: SQLAlchemy ORM mediante `db.session` (en [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py) y [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py)).
+- **Ubicación**: SQLAlchemy ORM mediante `db.session` (en [`app/routes.py`](app/routes.py) y [`app/models.py`](app/models.py)).
 - **Problema que resuelve**: Prevenir operaciones dispersas de escritura en disco y garantizar transacciones atómicas (ACID).
 - **Implementación**: Durante el ciclo de vida de una petición HTTP, `db.session` rastrea todos los cambios en memoria sobre las entidades (`db.session.add(nuevo_objeto)`, `db.session.delete(objeto)`). Al finalizar la operación de negocio, emite todos los comandos SQL coordinados en una sola transacción mediante `db.session.commit()`, o ejecuta `db.session.rollback()` ante cualquier excepción.
 
 ##### **Chain of Responsibility / HTTP Pipeline Filters**
-- **Ubicación**: Flujo de ejecución en [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py).
+- **Ubicación**: Flujo de ejecución en [`app/routes.py`](app/routes.py).
 - **Problema que resuelve**: Procesar secuencialmente validaciones de seguridad y datos en cada invocación web.
 - **Implementación**: Cada petición atraviesa una cadena ordenada de interceptores:
 $$\text{Petición HTTP} \longrightarrow \text{@login\\_required} \longrightarrow \text{@role\\_required} \longrightarrow \text{form.validate\\_on\\_submit()} \longrightarrow \text{Controlador} \longrightarrow \text{registrar\\_log()} \longrightarrow \text{Respuesta HTML}$$
 
 ##### **Observer / Append-Only Logging Pattern (Módulo de Auditoría)**
-- **Ubicación**: [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20) ([`registrar_log`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20)).
+- **Ubicación**: [`app/utils.py`](app/utils.py#L20) ([`registrar_log`](app/utils.py#L20)).
 - **Problema que resuelve**: Proveer trazabilidad e inmutabilidad de eventos para auditoría de sistemas sin acoplar la bitácora a la base de datos relacional.
-- **Implementación**: Actúa como un suscriptor de eventos clave del ciclo de vida de la aplicación (`Login`, `Logout`, `Registro`, `Consulta`, `Eliminación`), volcando secuencialmente cada suceso en [`auditoria_log.txt`](file:///home/jose/university/ingenieria-de-software/proyecto/auditoria_log.txt) en formato estructurado (`FECHA, USUARIO, ACTIVIDAD`), garantizando persistencia forense no destructiva.
+- **Implementación**: Actúa como un suscriptor de eventos clave del ciclo de vida de la aplicación (`Login`, `Logout`, `Registro`, `Consulta`, `Eliminación`), volcando secuencialmente cada suceso en [`auditoria_log.txt`](auditoria_log.txt) en formato estructurado (`FECHA, USUARIO, ACTIVIDAD`), garantizando persistencia forense no destructiva.
 
 ---
 
@@ -859,22 +859,22 @@ $$\text{Petición HTTP} \longrightarrow \text{@login\\_required} \longrightarrow
 
 | Patrón de Diseño | Clasificación | Archivos y Componentes Clave | Propósito y Justificación en TrainerApp |
 | :--- | :--- | :--- | :--- |
-| **MVC** | Arquitectónico | [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py), [`app/templates/`](file:///home/jose/university/ingenieria-de-software/proyecto/app/templates/), [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py) | Separa el modelo del dominio deportivo, la interfaz Bootstrap y los controladores HTTP. |
-| **Application Factory** | Creacional | [`app/__init__.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/__init__.py), [`config.py`](file:///home/jose/university/ingenieria-de-software/proyecto/config.py) | Inicialización centralizada de extensiones Flask (`SQLAlchemy`, `Migrate`, `LoginManager`). |
-| **Polymorphic Factory (JTI)** | Creacional / ORM | [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py) (`Usuario`, `Entrenador`, `Cliente`) | Instanciación automática de subclases concretas a partir de la columna discriminadora `tipo`. |
-| **Decorator** | Estructural | [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7) (`@role_required`), Flask-Login (`@login_required`), Flask (`@app.route`) | Inyección no intrusiva de control de acceso RBAC, autenticación y enrutamiento en controladores. |
-| **Adapter** | Estructural | [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L53) (`render_markdown`), Jinja2 filter | Convierte Markdown emitido por Gemini o Heurística en HTML enriquecido con Bootstrap y libre de XSS. |
-| **Strategy & Fallback** | Comportamiento | [`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L360) (`generar_recomendacion_ia`) | Conmutación resiliente entre inferencia en la nube (Google Gemini) y motor heurístico determinista local. |
-| **Data Transfer Object (DTO)** | Comportamiento | [`app/forms.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py) (`LoginForm`, `SignupForm`, etc.) | Encapsula el transporte, validación estricta y protección CSRF de datos HTTP antes del ORM. |
+| **MVC** | Arquitectónico | [`app/models.py`](app/models.py), [`app/templates/`](app/templates/), [`app/routes.py`](app/routes.py) | Separa el modelo del dominio deportivo, la interfaz Bootstrap y los controladores HTTP. |
+| **Application Factory** | Creacional | [`app/__init__.py`](app/__init__.py), [`config.py`](config.py) | Inicialización centralizada de extensiones Flask (`SQLAlchemy`, `Migrate`, `LoginManager`). |
+| **Polymorphic Factory (JTI)** | Creacional / ORM | [`app/models.py`](app/models.py) (`Usuario`, `Entrenador`, `Cliente`) | Instanciación automática de subclases concretas a partir de la columna discriminadora `tipo`. |
+| **Decorator** | Estructural | [`app/utils.py`](app/utils.py#L7) (`@role_required`), Flask-Login (`@login_required`), Flask (`@app.route`) | Inyección no intrusiva de control de acceso RBAC, autenticación y enrutamiento en controladores. |
+| **Adapter** | Estructural | [`app/utils.py`](app/utils.py#L53) (`render_markdown`), Jinja2 filter | Convierte Markdown emitido por Gemini o Heurística en HTML enriquecido con Bootstrap y libre de XSS. |
+| **Strategy & Fallback** | Comportamiento | [`app/ai_service.py`](app/ai_service.py#L360) (`generar_recomendacion_ia`) | Conmutación resiliente entre inferencia en la nube (Google Gemini) y motor heurístico determinista local. |
+| **Data Transfer Object (DTO)** | Comportamiento | [`app/forms.py`](app/forms.py) (`LoginForm`, `SignupForm`, etc.) | Encapsula el transporte, validación estricta y protección CSRF de datos HTTP antes del ORM. |
 | **Unit of Work & Identity Map** | Comportamiento / ORM | SQLAlchemy (`db.session` en controladores y modelos) | Gestión transaccional ACID de objetos modificados en memoria con commit atómico coordinado. |
-| **Chain of Responsibility** | Comportamiento | Pipeline de ejecución en [`app/routes.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py) | Evaluación secuencial de interceptores de sesión, permisos y validaciones de formulario. |
-| **Observer / Append-Only Logger** | Comportamiento | [`app/utils.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20) (`registrar_log`), [`auditoria_log.txt`](file:///home/jose/university/ingenieria-de-software/proyecto/auditoria_log.txt) | Registro secuencial e inmutable de eventos transaccionales para auditoría forense continua. |
+| **Chain of Responsibility** | Comportamiento | Pipeline de ejecución en [`app/routes.py`](app/routes.py) | Evaluación secuencial de interceptores de sesión, permisos y validaciones de formulario. |
+| **Observer / Append-Only Logger** | Comportamiento | [`app/utils.py`](app/utils.py#L20) (`registrar_log`), [`auditoria_log.txt`](auditoria_log.txt) | Registro secuencial e inmutable de eventos transaccionales para auditoría forense continua. |
 
 ---
 
 ## 🤖 6. Inteligencia Artificial (IA) y Motor Heurístico
 
-El proyecto cuenta con un módulo de IA que realiza un query al API de Gemini, implementado en [`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py) para satisfacer el **Caso de Uso CU17 (RF14 - Proyección de Tiempo Estimado y Sugerencias)**.
+El proyecto cuenta con un módulo de IA que realiza un query al API de Gemini, implementado en [`app/ai_service.py`](app/ai_service.py) para satisfacer el **Caso de Uso CU17 (RF14 - Proyección de Tiempo Estimado y Sugerencias)**.
 
 ### Pipeline de Datos y Optimización de Tokens
 1. **Compilación de Métricas Cuantitativas**: Se extraen las sesiones reales del alumno, calculando primera carga registrada vs. carga máxima levantada, delta de sobrecarga progresiva ($\Delta kg$), adherencia en los últimos 7 días y variaciones en el historial de pesaje corporal.
@@ -1002,7 +1002,7 @@ Accede en tu navegador a: **`http://127.0.0.1:5000`**
 
 ## 🧪 9. Pruebas Realizadas y Resultados de Ejecución
 
-Con el objetivo de garantizar la fiabilidad, robustez arquitectónica, integridad relacional, seguridad de acceso y resiliencia del sistema ante fallos externos, se diseñó e implementó un banco integral de **pruebas automatizadas** basado en el framework oficial [`unittest`](file:///home/jose/university/ingenieria-de-software/proyecto/tests/test_suite.py) de Python.
+Con el objetivo de garantizar la fiabilidad, robustez arquitectónica, integridad relacional, seguridad de acceso y resiliencia del sistema ante fallos externos, se diseñó e implementó un banco integral de **pruebas automatizadas** basado en el framework oficial [`unittest`](tests/test_suite.py) de Python.
 
 El banco de pruebas abarca **25 casos de prueba automatizados** que cubren la totalidad de los requisitos funcionales (RF01 - RF15), no funcionales (Seguridad, Disponibilidad, Integridad) y casos de uso (CU01 - CU17) estipulados en la especificación del proyecto.
 
@@ -1037,7 +1037,7 @@ flowchart TD
 La estrategia de aseguramiento de calidad del software adoptó un enfoque multidimensional:
 
 1. **Pruebas Unitarias de Modelos y Dominio (Unit Testing)**:
-   - Verificación de los métodos de modelo [`guardar_contraseña`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L32) y [`chequear_contraseña`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L35) comprobando que las credenciales no se persistan en texto plano y que el algoritmo de derivación de claves sea resistente.
+   - Verificación de los métodos de modelo [`guardar_contraseña`](app/models.py#L32) y [`chequear_contraseña`](app/models.py#L35) comprobando que las credenciales no se persistan en texto plano y que el algoritmo de derivación de claves sea resistente.
    - Verificación de la generación de códigos de vinculación de entrenadores con formato `ENT-XXXXXX` utilizando generadores pseudoaleatorios criptográficamente seguros (`secrets.choice`).
    - Comprobación de la herencia polimórfica JTI en SQLAlchemy, validando que instancias de `Cliente` y `Entrenador` compartan la identidad de `Usuario` y mantengan el discriminador `tipo` íntegro.
    - Verificación de borrado en cascada (`cascade="all, delete-orphan"` y `ondelete="CASCADE"`) para evitar registros huérfanos al suprimir macrociclos o sesiones.
@@ -1048,7 +1048,7 @@ La estrategia de aseguramiento de calidad del software adoptó un enfoque multid
    - Comprobación de auditoría para usuarios autenticados e imputación de actividad a `Anonimo` en operaciones no autenticadas.
 
 3. **Pruebas de Seguridad y Control de Acceso Basado en Roles (RBAC)**:
-   - Evaluación perimetral del decorador [`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7):
+   - Evaluación perimetral del decorador [`@role_required`](app/utils.py#L7):
      - Redirección con código de estado **HTTP 302** hacia `/login` ante peticiones anónimas.
      - Bloqueo inmediato con código de estado **HTTP 403 Forbidden** cuando un `Cliente` intenta invocar rutas administrativas de entrenador (`/clientes`, `/trainer/ejercicios`, `/trainer/rutinas`).
      - Bloqueo inmediato con código de estado **HTTP 403 Forbidden** cuando un `Entrenador` intenta acceder a paneles operativos de atleta (`/perfil`, `/cliente/mi-rutina`, `/cliente/mi-progreso`, `/cliente/entrenamiento-hoy`).
@@ -1066,15 +1066,15 @@ La estrategia de aseguramiento de calidad del software adoptó un enfoque multid
      - `success` (Verde): meta alcanzada o superada exitosamente.
 
 6. **Pruebas de Inteligencia Artificial y Resiliencia de Alta Disponibilidad**:
-   - Extracción y síntesis cuantitativa de sobrecarga progresiva en [`recopilar_datos_entrenamiento`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L11).
-   - Verificación del motor analítico heurístico local [`_generar_recomendacion_heuristica`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L229) generando diagnósticos matemáticos y proyecciones de semanas en ausencia de red.
+   - Extracción y síntesis cuantitativa de sobrecarga progresiva en [`recopilar_datos_entrenamiento`](app/ai_service.py#L11).
+   - Verificación del motor analítico heurístico local [`_generar_recomendacion_heuristica`](app/ai_service.py#L229) generando diagnósticos matemáticos y proyecciones de semanas en ausencia de red.
    - Simulación de corte de conexión / saturación de la API de Google Gemini comprobando la conmutación automática (*failover*) sin generar excepciones no controladas ni interrupciones de servicio para el usuario.
 
 ---
 
 ### 9.2. Entorno y Configuración de Pruebas Automatizadas
 
-Para garantizar que la ejecución de pruebas sea completamente aislada, idempotente y no altere los datos reales del gimnasio registrados en `app.db` ni el archivo `auditoria_log.txt`, se diseñó la clase base [`BaseTestCase`](file:///home/jose/university/ingenieria-de-software/proyecto/tests/test_suite.py#L18):
+Para garantizar que la ejecución de pruebas sea completamente aislada, idempotente y no altere los datos reales del gimnasio registrados en `app.db` ni el archivo `auditoria_log.txt`, se diseñó la clase base [`BaseTestCase`](tests/test_suite.py#L18):
 
 - **Base de Datos Transaccional en Memoria**: Se configura `SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'`. En cada test se ejecuta `db.create_all()` en el método `setUp()` y `db.drop_all()` en `tearDown()`, garantizando aislamiento absoluto.
 - **Bitácora de Auditoría Temporal**: Se genera un archivo temporal independiente por suite de pruebas mediante `tempfile.NamedTemporaryFile`, destruyéndose de forma limpia al finalizar.
@@ -1096,30 +1096,30 @@ La siguiente matriz detalla los **25 casos de prueba** ejecutados, su relación 
 
 | ID | Requerimiento / CU | Módulo Evaluado | Método de Prueba | Condición / Entrada | Resultado Esperado | Estado |
 | :---: | :---: | :---: | :--- | :--- | :--- | :---: |
-| **CP-01** | **RNF Seguridad** | [`Usuario`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L22) | `test_01_encriptacion_contraseña` | Password plano `"Secret123"` | Password encriptado con hash seguro; `chequear_contraseña` valida solo contraseña exacta. | **PASSED ✅** |
-| **CP-02** | **RF02 / RNF Integridad** | [`Entrenador`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L42) | `test_02_generacion_codigo_entrenador` | Instanciación de dos entrenadores | Códigos cumplen regex `^ENT-[A-Z0-9]{6}$` y son únicos entre sí. | **PASSED ✅** |
-| **CP-03** | **Arquitectura POO** | [`Usuario`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L22) / [`Cliente`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L58) | `test_03_herencia_polimorfica_jti` | Consulta polimórfica a tabla base `usuario` | Instancias resuelven sus subclases (`Entrenador`/`Cliente`) y discriminador `tipo`. | **PASSED ✅** |
-| **CP-04** | **RF05 / RNF Fiabilidad** | [`Rutina`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L104) / [`Sesion`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L118) | `test_04_cascada_eliminacion_rutina` | Eliminación de `Rutina` con sesiones y prescripciones | Supresión en cascada de `Sesion` y `Prescripcion`; catálogo de `Ejercicio` intacto. | **PASSED ✅** |
-| **CP-05** | **Requisito Cátedra** | [`registrar_log`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20) | `test_05_formato_linea_auditoria` | Registro de actividades con usuario | Líneas cumplen regex `YYYY-MM-DD HH:MM:SS, USUARIO, ACTIVIDAD`. | **PASSED ✅** |
-| **CP-06** | **Requisito Cátedra** | [`registrar_log`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20) | `test_06_usuario_anonimo_auditoria` | Registro sin sesión activa | Usuario imputado como `"Anonimo"` sin arrojar excepciones. | **PASSED ✅** |
+| **CP-01** | **RNF Seguridad** | [`Usuario`](app/models.py#L22) | `test_01_encriptacion_contraseña` | Password plano `"Secret123"` | Password encriptado con hash seguro; `chequear_contraseña` valida solo contraseña exacta. | **PASSED ✅** |
+| **CP-02** | **RF02 / RNF Integridad** | [`Entrenador`](app/models.py#L42) | `test_02_generacion_codigo_entrenador` | Instanciación de dos entrenadores | Códigos cumplen regex `^ENT-[A-Z0-9]{6}$` y son únicos entre sí. | **PASSED ✅** |
+| **CP-03** | **Arquitectura POO** | [`Usuario`](app/models.py#L22) / [`Cliente`](app/models.py#L58) | `test_03_herencia_polimorfica_jti` | Consulta polimórfica a tabla base `usuario` | Instancias resuelven sus subclases (`Entrenador`/`Cliente`) y discriminador `tipo`. | **PASSED ✅** |
+| **CP-04** | **RF05 / RNF Fiabilidad** | [`Rutina`](app/models.py#L104) / [`Sesion`](app/models.py#L118) | `test_04_cascada_eliminacion_rutina` | Eliminación de `Rutina` con sesiones y prescripciones | Supresión en cascada de `Sesion` y `Prescripcion`; catálogo de `Ejercicio` intacto. | **PASSED ✅** |
+| **CP-05** | **Requisito Cátedra** | [`registrar_log`](app/utils.py#L20) | `test_05_formato_linea_auditoria` | Registro de actividades con usuario | Líneas cumplen regex `YYYY-MM-DD HH:MM:SS, USUARIO, ACTIVIDAD`. | **PASSED ✅** |
+| **CP-06** | **Requisito Cátedra** | [`registrar_log`](app/utils.py#L20) | `test_06_usuario_anonimo_auditoria` | Registro sin sesión activa | Usuario imputado como `"Anonimo"` sin arrojar excepciones. | **PASSED ✅** |
 | **CP-07** | **RNF Seguridad** | Control de Sesión | `test_07_acceso_no_autenticado_redirige_login` | Petición `GET /clientes` y `GET /perfil` anónima | Código de estado HTTP 302 con cabecera `Location` hacia `/login`. | **PASSED ✅** |
-| **CP-08** | **RF01 / RNF Seguridad** | [`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7) | `test_08_cliente_bloqueado_en_rutas_entrenador_403` | Cliente autenticado invoca `/clientes`, `/trainer/ejercicios`, `/trainer/rutinas` | Interceptor bloquea la petición inmediatamente con código **HTTP 403 Forbidden**. | **PASSED ✅** |
-| **CP-09** | **RF01 / RNF Seguridad** | [`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7) | `test_09_entrenador_bloqueado_en_rutas_cliente_403` | Entrenador invoca `/perfil`, `/cliente/mi-rutina`, `/cliente/mi-progreso` | Interceptor bloquea la petición inmediatamente con código **HTTP 403 Forbidden**. | **PASSED ✅** |
-| **CP-10** | **RF07 / RNF Integridad** | [`Ejercicio`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L87) | `test_10_aislamiento_entre_entrenadores` | Entrenador B intenta eliminar ejercicio creado por Entrenador A | Operación rechazada; el ejercicio de Entrenador A permanece en la base de datos. | **PASSED ✅** |
-| **CP-11** | **CU01 / RF01** | [`routes.signup`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py#L62) | `test_11_registro_entrenador_exitoso` | Formulario POST con rol `'entrenador'` | Entrenador persistido en BD, código generado y redirección a login. | **PASSED ✅** |
+| **CP-08** | **RF01 / RNF Seguridad** | [`@role_required`](app/utils.py#L7) | `test_08_cliente_bloqueado_en_rutas_entrenador_403` | Cliente autenticado invoca `/clientes`, `/trainer/ejercicios`, `/trainer/rutinas` | Interceptor bloquea la petición inmediatamente con código **HTTP 403 Forbidden**. | **PASSED ✅** |
+| **CP-09** | **RF01 / RNF Seguridad** | [`@role_required`](app/utils.py#L7) | `test_09_entrenador_bloqueado_en_rutas_cliente_403` | Entrenador invoca `/perfil`, `/cliente/mi-rutina`, `/cliente/mi-progreso` | Interceptor bloquea la petición inmediatamente con código **HTTP 403 Forbidden**. | **PASSED ✅** |
+| **CP-10** | **RF07 / RNF Integridad** | [`Ejercicio`](app/models.py#L87) | `test_10_aislamiento_entre_entrenadores` | Entrenador B intenta eliminar ejercicio creado por Entrenador A | Operación rechazada; el ejercicio de Entrenador A permanece en la base de datos. | **PASSED ✅** |
+| **CP-11** | **CU01 / RF01** | [`routes.signup`](app/routes.py#L62) | `test_11_registro_entrenador_exitoso` | Formulario POST con rol `'entrenador'` | Entrenador persistido en BD, código generado y redirección a login. | **PASSED ✅** |
 | **CP-12** | **CU02-CU04 / RF02-03** | Registro Multi-Paso | `test_12_registro_cliente_tres_pasos` | Paso 1 (Signup) ➔ Paso 2 (Link ENT) ➔ Paso 3 (Onboarding) | Cliente persistido con `entrenador_id`, peso inicial registrado y sesión limpia. | **PASSED ✅** |
-| **CP-13** | **RNF Seguridad** | [`routes.login`](file:///home/jose/university/ingenieria-de-software/proyecto/app/routes.py#L30) | `test_13_login_credenciales_invalidas` | Usuario no existente o contraseña errónea | Respuesta con código HTTP 400 y mensaje de error en formulario. | **PASSED ✅** |
+| **CP-13** | **RNF Seguridad** | [`routes.login`](app/routes.py#L30) | `test_13_login_credenciales_invalidas` | Usuario no existente o contraseña errónea | Respuesta con código HTTP 400 y mensaje de error en formulario. | **PASSED ✅** |
 | **CP-14** | **CU07,09 / RF05-06** | Gestión de Rutinas | `test_14_crear_rutina_y_asignar_a_cliente` | Crear rutina ➔ agregar sesión ➔ agregar ejercicio ➔ asignar a cliente | Rutina asociada al cliente; `cliente.rutina_asignada` accesible. | **PASSED ✅** |
 | **CP-15** | **CU11,12 / RF08-09** | Entrenamiento | `test_15_registro_completo_sesion_diaria` | POST `guardar_entrenamiento` con series y duración | Registro de sesión, ejercicio y tuplas `RegistroSerie` guardadas con pesos reales. | **PASSED ✅** |
 | **CP-16** | **RF15 / Parámetro META** | Semáforo META | `test_16_evaluacion_semaforo_parametro_meta` | Cliente meta 70kg ➔ 75kg; pesajes progresivos (70kg, 72.5kg, 75.5kg) | Transición de semáforo: `danger` (inicio) ➔ `warning` (en progreso) ➔ `success` (alcanzada). | **PASSED ✅** |
-| **CP-17** | **CU17 / RF14** | [`ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py#L11) | `test_17_recopilacion_datos_para_ia` | Cliente con sesiones registradas en sala de pesas | Cálculo exacto de minutos totales, cargas máximas, primera carga y deltas. | **PASSED ✅** |
+| **CP-17** | **CU17 / RF14** | [`ai_service.py`](app/ai_service.py#L11) | `test_17_recopilacion_datos_para_ia` | Cliente con sesiones registradas en sala de pesas | Cálculo exacto de minutos totales, cargas máximas, primera carga y deltas. | **PASSED ✅** |
 | **CP-18** | **CU17 / Resiliencia** | Fallback Heurístico | `test_18_motor_heuristico_fallback_determinista` | Datos reales inyectados al motor determinista | Generación de diagnóstico de rendimiento, ajuste técnico y proyección RF14. | **PASSED ✅** |
 | **CP-19** | **RNF Disponibilidad** | Conmutación Resiliente | `test_19_resiliencia_ia_fallback_transparente` | Simulación de corte de red o API key no disponible | Conmutación automática al fallback sin excepción; respuesta útil retornada. | **PASSED ✅** |
 | **CP-20** | **CU17 / RF14** | Persistencia IA | `test_20_ruta_generar_recomendacion_ia_persiste_en_bd` | POST `/cliente/generar-recomendacion-ia` | Registro en tabla `recomendacion` con título `🤖`, cuerpo y `leido=False`. | **PASSED ✅** |
-| **CP-21** | **CU01,02 / DTO** | [`SignupForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L15) | `test_21_validacion_formulario_usuario_duplicado` | Registro con username ya existente en la base de datos | Formulario invalida el campo con error `"Este usuario ya exite"`. | **PASSED ✅** |
-| **CP-22** | **CU03 / DTO** | [`TrainerCodeForm`](file:///home/jose/university/ingenieria-de-software/proyecto/app/forms.py#L27) | `test_22_validacion_formulario_codigo_entrenador_invalido` | Código de entrenador inexistente `"ENT-INVENT"` | Formulario rechaza con `"Código inválido. No se encontró ningún entrenador"`. | **PASSED ✅** |
+| **CP-21** | **CU01,02 / DTO** | [`SignupForm`](app/forms.py#L15) | `test_21_validacion_formulario_usuario_duplicado` | Registro con username ya existente en la base de datos | Formulario invalida el campo con error `"Este usuario ya exite"`. | **PASSED ✅** |
+| **CP-22** | **CU03 / DTO** | [`TrainerCodeForm`](app/forms.py#L27) | `test_22_validacion_formulario_codigo_entrenador_invalido` | Código de entrenador inexistente `"ENT-INVENT"` | Formulario rechaza con `"Código inválido. No se encontró ningún entrenador"`. | **PASSED ✅** |
 | **CP-23** | **CU08 / RF12** | Filtrado de Rutinas | `test_23_filtrado_rutinas_por_target_cliente` | Cliente Hipertrofia/Intermedio; Entrenador consulta asignar | Presentación destacada de rutinas compatibles según meta y nivel del alumno. | **PASSED ✅** |
-| **CP-24** | **CU13 / RF11** | [`RegistroPesoCorporal`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L210) | `test_24_trazabilidad_historial_peso_cronologico` | Múltiples actualizaciones de peso corporal | Orden cronológico e inmutabilidad del historial para trazabilidad física. | **PASSED ✅** |
+| **CP-24** | **CU13 / RF11** | [`RegistroPesoCorporal`](app/models.py#L210) | `test_24_trazabilidad_historial_peso_cronologico` | Múltiples actualizaciones de peso corporal | Orden cronológico e inmutabilidad del historial para trazabilidad física. | **PASSED ✅** |
 | **CP-25** | **CU14 / RF10** | Supervisión Entrenador | `test_25_consulta_historial_alumno_por_entrenador` | Entrenador consulta `/trainer/clientes/<id>/entrenamientos` | Visualización estructurada de sesiones, duraciones, ejercicios y estado anímico. | **PASSED ✅** |
 
 ---
@@ -1141,7 +1141,7 @@ Tasa de Éxito Global:          100.0%
 ========================================================================================
 ```
 
-- **Cobertura de Casos de Uso**: **100%** de los 17 Casos de Uso definidos en el [Documento de Casos de Uso](file:///home/jose/university/ingenieria-de-software/proyecto/Documento%20de%20Casos%20de%20Uso.md) cuentan con pruebas unitarias o de integración directas.
+- **Cobertura de Casos de Uso**: **100%** de los 17 Casos de Uso definidos en el [Documento de Casos de Uso](Documento%20de%20Casos%20de%20Uso.md) cuentan con pruebas unitarias o de integración directas.
 - **Cobertura de Requerimientos**: **100%** de los 15 Requerimientos Funcionales y los Requerimientos No Funcionales clave (Seguridad, Fiabilidad, Integridad y Disponibilidad) han sido verificados.
 - **Resiliencia Verificada**: El sistema comprobó su capacidad de failover automático ante cortes de red en el módulo de Inteligencia Artificial sin degradación del servicio web.
 
@@ -1347,15 +1347,15 @@ flowchart TD
 ```
 
 1. **Resolución de JTI y Autorización Polimórfica**:
-   - Se configuraron explícitamente los argumentos `__mapper_args__ = {'polymorphic_identity': 'entrenador'}` y `{'polymorphic_identity': 'cliente'}` en [`app/models.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/models.py#L42).
-   - Se implementó un decorador dinámico [`@role_required`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L7) que inspecciona la propiedad polimórfica `current_user.tipo`. Además, la ruta raíz `/` despacha polimórficamente al usuario a su panel correspondiente (`/trainer/clientes` o `/cliente/dashboard`) según la instancia concreta en sesión.
+   - Se configuraron explícitamente los argumentos `__mapper_args__ = {'polymorphic_identity': 'entrenador'}` y `{'polymorphic_identity': 'cliente'}` en [`app/models.py`](app/models.py#L42).
+   - Se implementó un decorador dinámico [`@role_required`](app/utils.py#L7) que inspecciona la propiedad polimórfica `current_user.tipo`. Además, la ruta raíz `/` despacha polimórficamente al usuario a su panel correspondiente (`/trainer/clientes` o `/cliente/dashboard`) según la instancia concreta en sesión.
 
 2. **Arquitectura de Resiliencia Dual en Inteligencia Artificial**:
-   - En [`app/ai_service.py`](file:///home/jose/university/ingenieria-de-software/proyecto/app/ai_service.py), se orquestó una estrategia de **conmutación encadenada multi-modelo** priorizando `gemini-3.5-flash-lite`, con failover transparente hacia `gemini-flash-lite-latest`, `gemini-3.1-flash-lite`, `gemini-3.8-flash` y `gemini-flash-latest`.
+   - En [`app/ai_service.py`](app/ai_service.py), se orquestó una estrategia de **conmutación encadenada multi-modelo** priorizando `gemini-3.5-flash-lite`, con failover transparente hacia `gemini-flash-lite-latest`, `gemini-3.1-flash-lite`, `gemini-3.8-flash` y `gemini-flash-latest`.
    - Si se agota la cuota o falla la resolución de red (offline), el sistema activa de inmediato la función interna `_generar_recomendacion_heuristica()`. Este motor evalúa la sobrecarga acumulada ($\Delta\text{kg}$), días entrenados y tasa semanal de progreso, emitiendo diagnósticos inmediatos sin que el usuario final perciba interrupción alguna.
 
 3. **Gestión Segura y Centralizada de la Bitácora de Auditoría**:
-   - Se encapsuló la escritura de logs en la función [`registrar_log(actividad, usuario)`](file:///home/jose/university/ingenieria-de-software/proyecto/app/utils.py#L20).
+   - Se encapsuló la escritura de logs en la función [`registrar_log(actividad, usuario)`](app/utils.py#L20).
    - La función opera bajo context managers (`with open(..., mode='a', encoding='utf-8')`), atrapa excepciones `OSError` de bajo nivel sin abortar la transacción HTTP, asegura formato estandarizado `YYYY-MM-DD HH:MM:SS, usuario, actividad` y garantiza que la bitácora pueda ser auditada por herramientas externas sin dependencias de base de datos.
 
 4. **Diseño de Interfaz Ágil para Entrenamiento en Vivo**:
@@ -1364,7 +1364,7 @@ flowchart TD
 
 5. **Aislamiento de Migraciones y Sembrado Automatizado**:
    - Se habilitó la directiva `render_as_batch=True` en la configuración de migraciones de Alembic, permitiendo a SQLite recrear tablas de manera segura durante cambios de esquema.
-   - Se desarrollaron comandos CLI de Click en [`trainerapp.py`](file:///home/jose/university/ingenieria-de-software/proyecto/trainerapp.py#L38) (`flask seed` para catálogos y `flask seed-log` para auditoría), garantizando un despliegue determinista y reproducible en cualquier entorno de pruebas o evaluación docente.
+   - Se desarrollaron comandos CLI de Click en [`trainerapp.py`](trainerapp.py#L38) (`flask seed` para catálogos y `flask seed-log` para auditoría), garantizando un despliegue determinista y reproducible en cualquier entorno de pruebas o evaluación docente.
 
 ---
 
