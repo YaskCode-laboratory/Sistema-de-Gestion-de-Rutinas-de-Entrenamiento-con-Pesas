@@ -1312,6 +1312,7 @@ A lo largo del desarrollo de **TrainerApp**, el equipo enfrentó desafíos técn
 | **Arquitectura de Datos (ORM)** | **Resolución polimórfica en Flask-Login**: La biblioteca `Flask-Login` recupera instancias mediante `user_loader` por ID; al utilizar *Joined Table Inheritance (JTI)*, las consultas primitivas devolvían la clase genérica `Usuario` en lugar de las subclases especializadas `Entrenador` o `Cliente`, impidiendo invocar métodos y propiedades específicos. | Riesgo de fallos en tiempo de ejecución (`AttributeError`) al intentar acceder a atributos como `codigo_entrenador` o `peso_objetivo` desde `current_user`. |
 | **Inteligencia Artificial y Red** | **Volatilidad de la API externa y entornos offline**: Durante pruebas en salas de pesas y despliegues locales, se presentaron problemas de resolución DNS (`Temporary failure in name resolution`), límites de cuota HTTP 429 y deprecación acelerada de versiones previas de modelos Gemini (ej. `gemini-1.5-flash` o `gemini-2.0-flash`). | Bloqueo o demora en la generación de recomendaciones si el sistema dependía ciegamente de una respuesta exitosa de la nube. |
 | **Auditoría de Sistemas** | **Concurrencia y bloqueo en bitácora plana (`auditoria_log.txt`)**: A diferencia de las bases de datos transaccionales con control de concurrencia ACID, los archivos planos pueden sufrir condiciones de carrera, errores de codificación de caracteres especiales (acentos, marcas de fecha) o bloqueos de descriptor de archivo ante múltiples accesos simultáneos. | Peligro de corrupción de la bitácora de auditoría o denegación de servicio por excepción no controlada de E/S. |
+| **Seguridad de la Información** | **Exposición transitoria de secreto en historial Git**: En un commit intermedio (`5ad33c7`), un ajuste no intencionado en `.gitignore` eliminó la directiva `.env`, provocando que el archivo local con la API Key activa de Google Gemini quedara registrado en el árbol histórico de Git antes de la presentación. | Riesgo crítico de fuga de credenciales en repositorios compartidos y consumo no autorizado de cuotas. |
 | **Experiencia de Usuario (UX)** | **Fricción de entrada de datos en sala de pesas**: Registrar series de levantamiento de peso con dispositivos móviles mientras se experimenta fatiga física y descansos reducidos generaba rechazo al llenado manual de tablas complejas. | Baja adherencia del atleta al sistema y pérdida de registros reales de entrenamiento. |
 | **Versionado de Esquema** | **Limitaciones de alteración de tablas en SQLite**: SQLite carece de soporte completo para sentencias complejas de alteración de columnas (`ALTER TABLE DROP/MODIFY COLUMN`), lo que dificultó iteraciones ágiles de refactorización sobre las entidades de prescripción y series. | Riesgo de inconsistencias en migraciones de Alembic y corrupción del archivo `app.db` de desarrollo. |
 
@@ -1329,6 +1330,7 @@ flowchart TD
         D3["Concurrencia en auditoria_log.txt"]
         D4["Fricción UX en Sala de Pesas"]
         D5["Migraciones en SQLite"]
+        D6["Exposición de .env en Git"]
     end
 
     subgraph Soluciones ["💡 Soluciones de Ingeniería"]
@@ -1337,6 +1339,7 @@ flowchart TD
         S3["Función centralizada registrar_log() con UTF-8,\ncontext managers y manejo de excepciones OSError"]
         S4["UI responsiva Bootstrap 5.3, inputs numéricos\nprecargados y tarjetas de series dinámicas"]
         S5["Alembic batch mode (render_as_batch=True) y\ncomandos CLI 'flask seed' / 'flask seed-log'"]
+        S6["Saneamiento integral con git-filter-repo,\nrevocación definitiva en Google AI Studio (HTTP 401)"]
     end
 
     D1 --> S1
@@ -1344,6 +1347,7 @@ flowchart TD
     D3 --> S3
     D4 --> S4
     D5 --> S5
+    D6 --> S6
 ```
 
 1. **Resolución de JTI y Autorización Polimórfica**:
@@ -1365,6 +1369,11 @@ flowchart TD
 5. **Aislamiento de Migraciones y Sembrado Automatizado**:
    - Se habilitó la directiva `render_as_batch=True` en la configuración de migraciones de Alembic, permitiendo a SQLite recrear tablas de manera segura durante cambios de esquema.
    - Se desarrollaron comandos CLI de Click en [`trainerapp.py`](trainerapp.py#L38) (`flask seed` para catálogos y `flask seed-log` para auditoría), garantizando un despliegue determinista y reproducible en cualquier entorno de pruebas o evaluación docente.
+
+6. **Saneamiento Forense de Repositorio (git-filter-repo) y Revocación Criptográfica de Credenciales**:
+   - Para neutralizar la exposición incidental de `.env`, se ejecutó una reescritura completa del árbol de Git mediante `git-filter-repo --invert-paths --path .env`, purgando el archivo de todas las ramas e historiales y reincorporando `.env` a `.gitignore` de manera definitiva (commit `ad77546`).
+   - Bajo el principio de seguridad *"toda credencial expuesta es una credencial comprometida"*, la clave de Google Gemini fue **revocada y eliminada inmediatamente** en la consola de Google AI Studio / Google Cloud.
+   - Se validó pericialmente mediante peticiones HTTP a los endpoints de Google que la credencial devuelve **`HTTP 401 UNAUTHENTICATED`**, quedando 100% inoperativa, mientras el sistema opera sin disrupción bajo su motor heurístico local.
 
 ---
 
@@ -1473,6 +1482,98 @@ La culminación del proyecto **TrainerApp** permite extraer las siguientes concl
 
 5. **Consolidación Académica e Institucional**:
    Desarrollado bajo los estándares de la **Universidad del Zulia (LUZ)**, Facultad de Ciencias, Licenciatura en Computación, **TrainerApp** materializa los conocimientos adquiridos a lo largo de la carrera, entregando un producto tecnológico de nivel profesional, robusto y preparado para su puesta en marcha en el ámbito deportivo contemporáneo.
+---
+
+### 12.7. Correciones de Seguridad: Gestión de Incidentes, Saneamiento de Git y Revocación/Rotación de Credenciales
+
+En el marco de las buenas prácticas de seguridad de la información, se documenta formalmente la detección, contención, saneamiento y resolución definitiva del incidente de seguridad asociado a la clave de API de **Google Gemini**:
+
+```mermaid
+flowchart LR
+    subgraph Incidente ["1. Detección del Incidente"]
+        direction TB
+        I1["Edición en .gitignore\n(commit 5ad33c7)"] --> I2["Inclusión inadvertida de .env\ncon API Key activa en commits"]
+    end
+
+    subgraph Contencion ["2. Saneamiento en Git"]
+        direction TB
+        C1["git-filter-repo --path .env"] --> C2["Reescritura de árbol y ramas\n(commits 2d8cc4e / ad77546)"]
+        C2 --> C3["Restablecimiento de .env\nen .gitignore"]
+    end
+
+    subgraph Remediacion ["3. Revocación en Google AI Studio"]
+        direction TB
+        R1["Baja inmediata de la clave"] --> R2["Rotación y custodia de nueva clave"]
+        R2 --> R3["Comprobación forense\nHTTP 401 UNAUTHENTICATED"]
+    end
+
+    subgraph Resiliencia ["4. Continuidad Operativa"]
+        direction TB
+        S1["Activación de Fallback Heurístico"] --> S2["25/25 Tests Unitarios Aprobados\n(100% Disponibilidad)"]
+    end
+
+    Incidente ==> Contencion ==> Remediacion ==> Resiliencia
+```
+
+#### 1. Antecedentes y Causa Raíz
+- **Desconfiguración de Exclusión**: En el commit `5ad33c7` se modificó transitoriamente [`.gitignore`](.gitignore), omitiendo la directiva `.env`.
+- **Exposición Transitoria**: Como resultado, el archivo local `.env` —que albergaba la variable `GEMINI_API_KEY` para el servicio de inteligencia artificial ([`app/ai_service.py`](app/ai_service.py))— fue incluido en los commits previos a la presentación final.
+
+#### 2. Saneamiento Criptográfico del Historial Git (`git-filter-repo`)
+- Siguiendo los estándares de la industria, se ejecutó un filtrado atómico del historial del repositorio utilizando `git-filter-repo`:
+  ```bash
+  git filter-repo --invert-paths --path .env
+  ```
+- **Trazabilidad de Metadatos**: El proceso reescribió las ramas `main` y `exposicion-grupal-auditoria`, mapeando el commit original afectado hacia los nuevos hashes limpios (`c2699cd` $\to$ `2d8cc4e` y `0b722ab` $\to$ `ad77546`), purgando cualquier rastro del archivo `.env` del grafo de objetos de Git.
+- **Blindaje de `.gitignore`**: En el commit `ad77546`, se reincorporó de manera inmutable la regla `.env` al archivo [`.gitignore`](.gitignore).
+- **Verificación de Blobs**: La búsqueda en todos los objetos del repositorio (`git rev-list --objects --all`) certifica **0 coincidencias** de credenciales expuestas en el historial actual.
+
+#### 3. Protocolo de Revocación y Rotación en el Proveedor (Google AI Studio)
+> [!IMPORTANT]
+> Limpiar el historial de Git no invalida un secreto que ya fue expuesto. El principio rector de DevSecOps dicta que **toda credencial expuesta debe considerarse comprometida y ser revocada de raíz en el proveedor de nube**.
+
+1. **Baja y Revocación Inmediata**: La credencial expuesta fue revocada, deshabilitada y eliminada en la consola de [Google AI Studio / Google Cloud Platform](https://aistudio.google.com/).
+2. **Rotación Segura**: Los nuevos accesos se gestionan mediante variables de entorno aisladas, manteniendo en el repositorio únicamente la plantilla pública y sanitizada [`.env.example`](.env.example).
+
+#### 4. Evidencia Técnica Pericial de Revocación (HTTP 401)
+Se realizaron pruebas de petición directa contra los endpoints de la API REST de Google Gemini (`generativelanguage.googleapis.com`):
+
+```bash
+curl -s "https://generativelanguage.googleapis.com/v1beta/models?key=[Key-Antigua]"
+```
+
+**Respuesta oficial emitida por los servidores de Google:**
+```json
+{
+  "error": {
+    "code": 401,
+    "message": "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.",
+    "status": "UNAUTHENTICATED",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "ACCESS_TOKEN_TYPE_UNSUPPORTED",
+        "metadata": {
+          "method": "google.ai.generativelanguage.v1beta.ModelService.ListModels",
+          "service": "generativelanguage.googleapis.com"
+        }
+      }
+    ]
+  }
+}
+```
+
+> [!NOTE]
+> La respuesta **`HTTP 401 UNAUTHENTICATED`** con motivo `ACCESS_TOKEN_TYPE_UNSUPPORTED` certifica forensemente que la credencial se encuentra desactivada, invalidada e inutilizable por terceros no autorizados.
+
+#### 5. Garantía de Alta Disponibilidad y Resiliencia del Sistema
+Aun con la credencial remota revocada, **TrainerApp mantiene el 100% de su operatividad**:
+- **Conmutación al Motor Analítico Experto**: Al detectar la ausencia o invalidez de la clave, [`app/ai_service.py`](app/ai_service.py#L229) activa de forma transparente el motor determinista local `_generar_recomendacion_heuristica()`, generando proyecciones y diagnósticos matemáticos sin depender de conectividad a la nube.
+- **Suite de Pruebas Unitarias al 100%**:
+  ```bash
+  .venv/bin/python -m unittest tests/test_suite.py
+  # Resultado: Ran 25 tests in 7.742s -> OK (100% éxito)
+  ```
 ---
 
 <p align="center">

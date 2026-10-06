@@ -6,7 +6,12 @@ load_dotenv(os.path.join(basedir, '.env'))
 load_dotenv(os.path.join(basedir, '.flaskenv'))
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY or not SECRET_KEY.strip():
+        raise ValueError(
+            "La variable de entorno SECRET_KEY es requerida y debe contener una clave segura. "
+            "No se permite ejecutar la aplicación sin SECRET_KEY configurada"
+        )
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
     AUDITORIA_LOG_FILE = os.environ.get('AUDITORIA_LOG_FILE') or \
